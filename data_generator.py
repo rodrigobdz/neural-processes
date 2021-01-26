@@ -111,7 +111,7 @@ class GPCurves:
         else:
             num_target = torch.randint(0, self.max_num_context - num_context, [])
             num_total_points = num_context + num_target
-            X = torch.Tensor([self._batch_size, num_total_points, self._x_size]).uniform_(-2, 2)
+            X = torch.Tensor([self.batch_size, num_total_points, self.x_size]).uniform_(-2, 2)
 
 
 
