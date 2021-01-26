@@ -130,31 +130,31 @@ class GPCurves:
         y = cholesky.matmul(torch.randn(self.batch_size, self.y_size, num_total_points, 1)) #no mean assumption: y = mu + sigma*z~N(0,I) ~ c.L * rand_normal([0, 1]) with appropriate shape
         #TODO if runtime error: change dimension -1 of torch.randn_like(cholesky) to ?
 
-        y = torch.transpose(y.squeeze(3)).permute(0, 2, 1) # possible error
+        Y = torch.transpose(y.squeeze(3)).permute(0, 2, 1) # possible error
 
         if self.testing:
             # Select the targets
-            target_x = x
-            target_y = y
+            target_x = X
+            target_y = Y
 
             # Select the observations
             idx = torch.randperm(num_target)
-            context_x = torch.index_select(x, 1, idx[:num_context]) # tf.gather(x_values, idx[:num_context], axis=1)
-            context_y = torch.index_select(y, 1, idx[:num_context]) # tf.gather(y_values, idx[:num_context], axis=1)
+            context_x = torch.index_select(X, 1, idx[:num_context]) # tf.gather(x_values, idx[:num_context], axis=1)
+            context_y = torch.index_select(Y, 1, idx[:num_context]) # tf.gather(y_values, idx[:num_context], axis=1)
         
         else:
             # Select the targets which will consist of the context points as well as
             # some new target points
-            target_x = x[:, :num_target + num_context, :]
-            target_y = y[:, :num_target + num_context, :]
+            target_x = X[:, :num_target + num_context, :]
+            target_y = Y[:, :num_target + num_context, :]
 
             # Select the observations
-            context_x = x[:, :num_context, :]
-            context_y = y[:, :num_context, :]
+            context_x = X[:, :num_context, :]
+            context_y = Y[:, :num_context, :]
 
-    query = ((context_x, context_y), target_x)
+        query = ((context_x, context_y), target_x)
 
-    return query
+        return (query, target_y)
 
 
 
