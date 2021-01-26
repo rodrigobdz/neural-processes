@@ -101,14 +101,14 @@ class GPCurves:
 
             num_context = torch.randint(3, self.max_num_context, [])
 
-            if self.testing
+            if self.testing:
                 num_target = 400
                 num_total_points = num_target
                 X = torch.range(-2, 2, 1. / 100).unsqueeze(0).expand(self.batch_size, -1) 
                 # attention! returns view - copy necessary if in place operations are used 
                 X.unsqueeze(-1)
                 
-            else 
+            else:
                 num_target = torch.randint(0, self.max_num_context - num_context, [])
                 num_total_points = num_context + num_target
                 X = torch.Tensor([self._batch_size, num_total_points, self._x_size]).uniform_(-2, 2)
@@ -120,7 +120,7 @@ class GPCurves:
                 length = torch.Tensor(self.batch_size, self.y_size, self.x_size).uniform_(0.1, self.length_scale)
                 sigma = torch.Tensor(self.batch_size, self.y_size, self.x_size).uniform_(0.1, self.sigma_scale)
             
-            else
+            else:
             #use the same Kernel parameters for every batch
                 length = torch.ones(self.batch_size, self.y_size, self.x_size).mul_(self.length_scale)
                 sigma = torch.ones_like(length).mul_(self.sigma_scale)
@@ -142,7 +142,7 @@ class GPCurves:
                 context_x = torch.index_select(x, 1, idx[:num_context] # tf.gather(x_values, idx[:num_context], axis=1)
                 context_y = torch.index_select(y, 1, idx[:num_context]) # tf.gather(y_values, idx[:num_context], axis=1)
             
-            else
+            else:
                 # Select the targets which will consist of the context points as well as
                 # some new target points
                 target_x = x[:, :num_target + num_context, :]
