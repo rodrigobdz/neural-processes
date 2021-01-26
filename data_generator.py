@@ -167,3 +167,4 @@ query, target = train.generate_curves()
 print(query[0][1].size())
 print(query[0][0].size())
 # %%
+# remove
