@@ -70,6 +70,7 @@ class GPCurves:
         # num_total_points = X.size()[1]
 
         #X.size(): [B, num_total_points, x_size]
+        print(X.size())
         x1 = X.unsqueeze(1)# [B, 1, num_total_points, x_size]
         x2 = X.unsqueeze(2)# [B, num_total_points, 1, x_size]
         diff = x1 - x2 # [B, num_total_points, num_total_points, x_size]
@@ -80,10 +81,12 @@ class GPCurves:
         
         # [B, data_size, num_total_points, num_total_points]
         norm = norm.sum(-1) # one data point per row 
+        print(norm.size())
+        print(sigma.size())
 
         # [B, y_size, num_total_points, num_total_points]
         kernel = torch.square(sigma)[:, :, None, None] * torch.exp(-0.5 * norm)
-        
+        print(kernel.size())
         # Add some noise to the diagonal to make the cholesky work.
         kernel.add_(torch.zeros_like(kernel).fill_diagonal_(noise**2))
 
@@ -111,21 +114,22 @@ class GPCurves:
         else:
             num_target = torch.randint(0, self.max_num_context - num_context, [])
             num_total_points = num_context + num_target
-            X = torch.Tensor([self.batch_size, num_total_points, self.x_size]).uniform_(-2, 2)
-
+            X = torch.Tensor(self.batch_size, num_total_points, self.x_size).uniform_(-2, 2)
+            
 
 
         #set Kernel parameters randomly for every batch
         if self.random_params:
             length = torch.Tensor(self.batch_size, self.y_size, self.x_size).uniform_(0.1, self.length_scale)
-            sigma = torch.Tensor(self.batch_size, self.y_size, self.x_size).uniform_(0.1, self.sigma_scale)
+            sigma = torch.Tensor(self.batch_size, self.y_size).uniform_(0.1, self.sigma_scale)
         
         else:
         #use the same Kernel parameters for every batch
+            print("wrong")
             length = torch.ones(self.batch_size, self.y_size, self.x_size).mul_(self.length_scale)
             sigma = torch.ones_like(length).mul_(self.sigma_scale)
 
-        kernel = self._kernel(X, length, sigma) #TODO check dtype
+        kernel = self._kernel(X, length, sigma)
         cholesky = kernel.cholesky() # TODO (maybe): change precision to float64 and cast to float32 afterwards
         y = cholesky.matmul(torch.randn(self.batch_size, self.y_size, num_total_points, 1)) #no mean assumption: y = mu + sigma*z~N(0,I) ~ c.L * rand_normal([0, 1]) with appropriate shape
         #TODO if runtime error: change dimension -1 of torch.randn_like(cholesky) to ?
@@ -158,4 +162,9 @@ class GPCurves:
 
 
 
+# %%
+train = GPCurves(batch_size=1, max_num_context=50)
+print(train.__dict__)
+# %%
+train.generate_curves()
 # %%
