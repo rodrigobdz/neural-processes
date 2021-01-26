@@ -1,5 +1,5 @@
 import torch
-
+# %%
 # Adapted from: 
 # https://colab.research.google.com/github/deepmind/neural-processes/blob/master/attentive_neural_process.ipynb#scrollTo=Px-atGEfNnWT
 # Copyright 2019 Google LLC
@@ -65,9 +65,9 @@ class GPCurves:
             [B, y_size, num_total_points, num_total_points].
     
         """
-        # num_total_points = X.size()[1]
+        num_total_points = X.size()[1]
 
-        #X.size(): [B, num_total_points, x_size]
+        # X.size(): [B, num_total_points, x_size]
         x1 = X.unsqueeze(1)# [B, 1, num_total_points, x_size]
         x2 = X.unsqueeze(2)# [B, num_total_points, 1, x_size]
         diff = x1 - x2 # [B, num_total_points, num_total_points, x_size]
@@ -83,7 +83,8 @@ class GPCurves:
         kernel = torch.square(sigma)[:, :, None, None] * torch.exp(-0.5 * norm)
         
         # Add some noise to the diagonal to make the cholesky work.
-        kernel.add_(torch.zeros_like(kernel).squeeze().fill_diagonal_(noise**2))
+        
+        kernel.add_(torch.eye(num_total_points).mul(noise**2))
         #TODO might result in wrong dimensions
 
         # test
@@ -159,7 +160,7 @@ class GPCurves:
 
 # Playground
 # %%
-train = GPCurves(batch_size=1, max_num_context=50) #, random_params=False, testing=True)
+train = GPCurves(batch_size=3, max_num_context=50) #, random_params=False, testing=True)
 # print(train.__dict__)
 # %%
 query, target = train.generate_curves()
