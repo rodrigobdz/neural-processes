@@ -1,6 +1,4 @@
-#%%
 import torch
-#%%
 
 # Adapted from: 
 # https://colab.research.google.com/github/deepmind/neural-processes/blob/master/attentive_neural_process.ipynb#scrollTo=Px-atGEfNnWT
@@ -103,11 +101,11 @@ class GPCurves:
         num_context = torch.randint(3, self.max_num_context, [])
 
         if self.testing:
-            num_target = 400
+            num_target = 401
             num_total_points = num_target
             X = torch.range(-2, 2, 1. / 100).unsqueeze(0).expand(self.batch_size, -1) 
             # attention! returns view - copy necessary if in place operations are used 
-            X.unsqueeze(-1)
+            X.unsqueeze_(-1)
             
         else:
             num_target = torch.randint(0, self.max_num_context - num_context, [])
@@ -122,12 +120,11 @@ class GPCurves:
         
         else:
         #use the same Kernel parameters for every batch
-            print("wrong")
             length = torch.ones(self.batch_size, self.y_size, self.x_size).mul_(self.length_scale)
-            sigma = torch.ones_like(length).mul_(self.sigma_scale)
+            sigma = torch.ones(self.batch_size, self.y_size).mul_(self.sigma_scale)
+        
 
         kernel = self._kernel(X, length, sigma)
-        print(kernel)
         cholesky = kernel.double().cholesky().float() # TODO (maybe): change precision to float64 and cast to float32 afterwards
         y = cholesky.matmul(torch.randn(self.batch_size, self.y_size, num_total_points, 1)) 
         #sampling with no mean assumption: y = mu + sigma*z~N(0,I) ~ c.L * rand_normal([0, 1]) with appropriate shape
@@ -160,9 +157,9 @@ class GPCurves:
         return query, target_y
 
 
-
+# Playground
 # %%
-train = GPCurves(batch_size=1, max_num_context=50, random_params=False)
+train = GPCurves(batch_size=1, max_num_context=50) #, random_params=False, testing=True)
 # print(train.__dict__)
 # %%
 query, target = train.generate_curves()
