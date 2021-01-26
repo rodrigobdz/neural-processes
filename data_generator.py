@@ -24,7 +24,8 @@ class GPCurves:
                 y_size=1,
                 sigma_scale=1.0,
                 length_scale=1.0,
-                random_params=True
+                random_params=True,
+                testing=False
                 ):
     
         """Creates a regression dataset of functions sampled from a GP.
@@ -47,6 +48,7 @@ class GPCurves:
         self.length_scale = length_scale
         self.sigma_scale = sigma_scale
         self.random_params = random_params
+        self.testing = testing
 
         def _kernel(self, X, l1, sigma, noise=1e-4):
             """Returns a (scaled) RBF kernel used to init the GP
