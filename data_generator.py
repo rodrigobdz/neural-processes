@@ -83,6 +83,7 @@ class GPCurves:
         # Add some noise to the diagonal to make the cholesky work.
         kernel.add_(torch.zeros_like(kernel).fill_diagonal_(noise**2))
 
+        # test
         return kernel
 
     def generate_curves(self):
