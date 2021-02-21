@@ -24,3 +24,4 @@
 ## Credits
 
 - This readme is based on [rodrigobdz/minimal-readme](https://github.com/rodrigobdz/minimal-readme).
+- The [script](./script) structure is based on [rodrigobdz/styleguide-sh](https://github.com/rodrigobdz/styleguide-sh).
