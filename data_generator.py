@@ -23,8 +23,8 @@ class GPCurves:
                 max_num_context,
                 x_size=1,
                 y_size=1,
-                sigma_scale=1.0,
                 length_scale=1.0,
+                sigma_scale=1.0,
                 random_params=True,
                 testing=False
                 ):
