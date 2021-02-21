@@ -51,13 +51,13 @@ class GPCurves:
         self.random_params = random_params
         self.testing = testing
 
-    def _kernel(self, X, l1, sigma, noise=2e-2):
+    def _kernel(self, X, length, sigma, noise=2e-2):
         """Returns a (scaled) RBF kernel used to init the GP
 
         Args:
             X: Tensor of shape [B, num_total_points, x_size] with
                 the values of the x-axis data.
-            l1: Tensor of shape [B, y_size, x_size], the scale
+            length: Tensor of shape [B, y_size, x_size], the scale
                 parameter of the Gaussian kernel.
             sigma: Tensor of shape [B, y_size], the magnitude
                 of the std.
@@ -77,7 +77,7 @@ class GPCurves:
 
         # [B, y_size, num_total_points, num_total_points, x_size]
         # None indexing [None, :] acts like tensor.unsqueeze(dim)
-        norm = torch.square(diff[:, None, :, :, :] / l1[:, :, None, None, :])
+        norm = torch.square(diff[:, None, :, :, :] / length[:, :, None, None, :])
 
         # [B, data_size, num_total_points, num_total_points]
         norm = norm.sum(-1) # one data point per row
@@ -88,7 +88,7 @@ class GPCurves:
         # Add some noise to the diagonal to make the cholesky work.
 
         kernel.add_(torch.eye(num_total_points).mul(noise**2))
-        #TODO might result in wrong dimensions
+        # TODO: might result in wrong dimensions
 
         # test
         return kernel
