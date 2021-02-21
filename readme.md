@@ -5,13 +5,13 @@
 ## Requirements
 
 - OS:
-  - Convenience script ./script/bootstrap supports only macOS or Linux.
-  - On Windows, proceed to manually install the dependencies listed in ./requirements/.
+  - Convenience script [script/bootstrap](./script/bootstrap) supports only macOS or Linux.
+  - On Windows, proceed to manually install the dependencies listed in [requirements/](./requirements/).
 - `python3` (Tested on Python `3.7.3`)
 
 ## Installation
 
-1. Execute ./script/bootstrap to install project dependencies
+1. Execute [script/bootstrap](./script/bootstrap) to install project dependencies
 
    ```sh
    ./script/bootstrap
