@@ -160,14 +160,3 @@ class GPCurves:
 
         return query, target_y
 
-
-# Playground
-# %%
-train = GPCurves(batch_size=3, max_num_context=50) #, random_params=False, testing=True)
-# print(train.__dict__)
-# %%
-query, target = train.generate_curves()
-# %%
-print(query[0][1].size())
-print(query[0][0].size())
-# %%
