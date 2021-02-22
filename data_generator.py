@@ -117,22 +117,23 @@ class GPCurves:
             X = torch.Tensor(self.batch_size, num_total_points, self.x_size).uniform_(-2, 2)
 
 
-        #set Kernel parameters randomly for every batch
+        # set Kernel parameters randomly for every batch
         if self.random_params:
             length = torch.Tensor(self.batch_size, self.y_size, self.x_size).uniform_(0.1, self.length_scale)
             sigma = torch.Tensor(self.batch_size, self.y_size).uniform_(0.1, self.sigma_scale)
 
         else:
-        #use the same Kernel parameters for every batch
+        # use the same Kernel parameters for every batch
             length = torch.ones(self.batch_size, self.y_size, self.x_size).mul_(self.length_scale)
             sigma = torch.ones(self.batch_size, self.y_size).mul_(self.sigma_scale)
 
 
         kernel = self._kernel(X, length, sigma)
-        cholesky = kernel.double().cholesky().float() # TODO (maybe): change precision to float64 and cast to float32 afterwards
+        # TODO: (maybe) change precision to float64 and cast to float32 afterwards
+        cholesky = kernel.double().cholesky().float()
         y = cholesky.matmul(torch.randn(self.batch_size, self.y_size, num_total_points, 1))
-        #sampling with no mean assumption: y = mu + sigma*z~N(0,I) ~ c.L * rand_normal([0, 1]) with appropriate shape
-        #TODO if runtime error: change dimension -1 of torch.randn_like(cholesky) to ?
+        # sampling with no mean assumption: y = mu + sigma*z~N(0,I) ~ c.L * rand_normal([0, 1]) with appropriate shape
+        # TODO: if runtime error: change dimension -1 of torch.randn_like(cholesky) to ?
 
         Y = y.squeeze(3).permute(0, 2, 1) # possible error
 
