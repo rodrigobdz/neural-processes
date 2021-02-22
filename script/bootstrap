@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+#
+# Install project dependencies (macOS and Linux only).
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+# shellcheck disable=SC1091
+source utils.sh
+
+readonly LOG_FILENAME=${LOG_FILENAME:-"$LOG_DIR/bootstrap.log"}
+declare DETECTED_OS
+
+welcome_user() {
+  fancy_echo "Install project dependencies."
+}
+
+check_requirements() {
+  # Output values of command uname -s
+  local -r macos_uname_s='darwin'
+  local -r linux_uname_s='linux'
+
+  # Abort if uname binary not available
+  if [ ! -x "$(command -v uname)" ]; then
+    err_exit "Binary 'uname' not found. OS not supported"
+  fi
+
+  fancy_echo "Detecting OS (supported: Linux and macOS)"
+  local -r detected_os_uppercase="$(uname -s)"
+
+  # Downcase string
+  # Source: https://stackoverflow.com/a/11392488
+  readonly DETECTED_OS="$(echo "$detected_os_uppercase" | tr '[:upper:]' '[:lower:]')"
+
+  # Abort script if OS is other than Linux or macOS (Darwin)
+  if [ "$DETECTED_OS" != "$macos_uname_s" ] && [ "$DETECTED_OS" != "$linux_uname_s" ]; then
+    err_exit "Detected OS $DETECTED_OS not supported. Supported: macOS (Darwin) and Linux"
+  fi
+}
+
+install_virtual_env() {
+  fancy_echo "Removing old python virtual environment 'neuralprocesses-venv'"
+  rm -rf neuralprocesses-venv
+
+  fancy_echo "Creating python virtual environment"
+  python3 -m venv neuralprocesses-venv
+
+  fancy_echo "Activating virtual environment"
+  # Use parameter expansion to avoid exiting early if environment variable is unset due to errexit option.
+  # Check that environment variable is not empty and corresponds to fish shell
+  if [ -n "${SHELL+empty}" ] && grep --ignore-case --quiet 'fish' "$SHELL"; then
+    fancy_echo "fish shell detected in SHELL env var. Activate virtual env using dedicated fish script:
+
+source neuralprocesses-venv/bin/activate.fish"
+  fi
+
+  # shellcheck disable=SC1091
+  source neuralprocesses-venv/bin/activate
+
+  fancy_echo "Upgrading pip"
+  python3 -m pip install --upgrade pip
+
+  install_requirements
+}
+
+install_requirements() {
+  local detected_os_filename="$DETECTED_OS"
+
+  if [ "$DETECTED_OS" = 'darwin' ]; then
+    detected_os_filename='mac'
+    fancy_echo "Setting filename for $DETECTED_OS to $detected_os_filename"
+  fi
+
+  fancy_echo "Install requirements for $DETECTED_OS"
+
+  fancy_echo "Installing requirements/$detected_os_filename.txt"
+  python3 -m pip install --requirement "requirements/$detected_os_filename.txt"
+}
+
+main() {
+  welcome_user
+  check_requirements
+  install_virtual_env
+  summary
+}
+
+main "$@" 2>&1 | tee "$LOG_FILENAME"
