@@ -35,7 +35,6 @@ class NeuralProcess(nn.Module):
             z = z[:, None, :].expand(-1, target_x.shape[1], -1)
 
 
-
         mu, sigma, distr = self._decoder(target_x, z)
 
         train = target_y is not None # true at train time
