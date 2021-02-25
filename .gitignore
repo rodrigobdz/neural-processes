@@ -1,0 +1,12 @@
+# Local copy of https://github.com/deepmind/neural-processes
+deepmind-neural-processes
+
+# VSCode Settings
+.vscode/settings.json
+
+# Python's virtual environment
+neuralprocesses-venv
+
+# Logs
+log/
+*.log
