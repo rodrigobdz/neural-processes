@@ -34,9 +34,9 @@ class Encoder(nn.Module):
         A Multivariate Gaussian (independence assumed) over tensors of shape [B, num_latents]
         """
 
-        # TODO relevant when creating the model:
+        # TODO: relevant when creating the model:
         #   maybe use DataLoader for training
-        # TODO change design?
+        # TODO: change design?
         data = torch.cat((x, y), dim=-1)
 
         # produce representations r_i and aggregate them (mean)
