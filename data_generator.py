@@ -26,7 +26,8 @@ class GPCurves:
                 length_scale=1.0,
                 sigma_scale=1.0,
                 random_params=True,
-                testing=False
+                testing=False,
+                dev='cpu'
                 ):
 
         """Creates a regression dataset of functions sampled from a GP.
@@ -39,17 +40,19 @@ class GPCurves:
             length_scale: Float; typical scale for kernel distance function.
             sigma_scale: Float; typical scale for variance.
             random_params: If `True`, the kernel parameters (length and sigma)
-            will be sampled uniformly within [0.1, length_scale] and [0.1, sigma_scale].
+            will be sampled uniformly within [0.1, length_scale) and [0.1, sigma_scale).
+            dev: Either `cpu` or `gpu`, tensors will be casted to appropriate device
         """
 
-        self.batch_size = batch_size
-        self.max_num_context = max_num_context
-        self.x_size = x_size
-        self.y_size = y_size
-        self.length_scale = length_scale
-        self.sigma_scale = sigma_scale
-        self.random_params = random_params
-        self.testing = testing
+        self._batch_size = batch_size
+        self._max_num_context = max_num_context
+        self._x_size = x_size
+        self._y_size = y_size
+        self._length_scale = length_scale
+        self._sigma_scale = sigma_scale
+        self._random_params = random_params
+        self._testing = testing
+        self._dev = dev
 
     def _kernel(self, X, length, sigma, noise=2e-2):
         """Returns a (scaled) RBF kernel used to init the GP
@@ -85,68 +88,68 @@ class GPCurves:
         # [B, y_size, num_total_points, num_total_points]
         kernel = torch.square(sigma)[:, :, None, None] * torch.exp(-0.5 * norm)
 
-        # Add some noise to the diagonal to make the cholesky work.
-
+        # Add some noise to the diagonal to make the cholesky work
         kernel.add_(torch.eye(num_total_points).mul(noise**2))
-        # TODO: might result in wrong dimensions
 
-        # test
         return kernel
 
     def generate_curves(self):
         """Builds the op delivering the data.
 
         Generated functions are `float32` with x values between -2 and 2.
-
         Returns:
+        GP data, four float tensors of shape
+        [B, num_total_points, dim_x/dim_y]
 
         """
 
-        num_context = torch.randint(3, self.max_num_context, [])
+        num_context = torch.randint(3, self._max_num_context, [])
 
-        if self.testing:
-            num_target = 401
+        if self._testing:
+            num_target = 400
             num_total_points = num_target
-            X = torch.range(-2, 2, 1. / 100).unsqueeze(0).expand(self.batch_size, -1)
+            X = torch.arange(-2, 2, 0.01).unsqueeze(0).expand(self._batch_size, -1)
             # attention! returns view - copy necessary if in place operations are used
             X.unsqueeze_(-1)
 
         else:
-            num_target = torch.randint(0, self.max_num_context - num_context, [])
+            num_target = torch.randint(0, self._max_num_context - num_context, [])
             num_total_points = num_context + num_target
-            X = torch.Tensor(self.batch_size, num_total_points, self.x_size).uniform_(-2, 2)
+            X = torch.Tensor(self._batch_size, num_total_points, self._x_size).uniform_(-2, 2)
 
 
         # set Kernel parameters randomly for every batch
-        if self.random_params:
-            length = torch.Tensor(self.batch_size, self.y_size, self.x_size).uniform_(0.1, self.length_scale)
-            sigma = torch.Tensor(self.batch_size, self.y_size).uniform_(0.1, self.sigma_scale)
+        if self._random_params:
+            length = torch.Tensor(self._batch_size, self._y_size, self._x_size).uniform_(0.1, self._length_scale)
+            sigma = torch.Tensor(self._batch_size, self._y_size).uniform_(0.1, self._sigma_scale)
 
         else:
         # use the same Kernel parameters for every batch
-            length = torch.ones(self.batch_size, self.y_size, self.x_size).mul_(self.length_scale)
-            sigma = torch.ones(self.batch_size, self.y_size).mul_(self.sigma_scale)
+            length = torch.ones(self._batch_size, self._y_size, self._x_size).mul_(self._length_scale)
+            sigma = torch.ones(self._batch_size, self._y_size).mul_(self._sigma_scale)
 
 
+        # [batch_size, y_size, num_total_points, num_total_points]
         kernel = self._kernel(X, length, sigma)
-        # TODO: (maybe) change precision to float64 and cast to float32 afterwards
+
+        # change precision to float64 for Cholesky and cast to float32 afterwards
         cholesky = kernel.double().cholesky().float()
-        y = cholesky.matmul(torch.randn(self.batch_size, self.y_size, num_total_points, 1))
+
         # sampling with no mean assumption: y = mu + sigma*z~N(0,I) ~ c.L * rand_normal([0, 1]) with appropriate shape
-        # TODO: if runtime error: change dimension -1 of torch.randn_like(cholesky) to ?
+        y = cholesky.matmul(torch.randn(self._batch_size, self._y_size, num_total_points, 1))
 
-        Y = y.squeeze(3).permute(0, 2, 1) # possible error
+        # [batch_size, num_total_points, y_size]
+        Y = y.squeeze(3).permute(0, 2, 1)
 
-        if self.testing:
+        if self._testing:
             # Select the targets
             target_x = X
             target_y = Y
 
             # Select the observations
             idx = torch.randperm(num_target)
-            context_x = torch.index_select(X, 1, idx[:num_context]) # tf.gather(x_values, idx[:num_context], axis=1)
-            context_y = torch.index_select(Y, 1, idx[:num_context]) # tf.gather(y_values, idx[:num_context], axis=1)
-
+            context_x = torch.index_select(X, 1, idx[:num_context])
+            context_y = torch.index_select(Y, 1, idx[:num_context])
         else:
             # Select the targets which will consist of the context points as well as
             # some new target points
@@ -157,7 +160,11 @@ class GPCurves:
             context_x = X[:, :num_context, :]
             context_y = Y[:, :num_context, :]
 
-        query = ((context_x, context_y), target_x)
+        context_x = context_x.to(self._dev)
+        context_y = context_y.to(self._dev)
+        target_x = target_x.to(self._dev)
+        target_y = target_y.to(self._dev)
 
-        return query, target_y
+
+        return (context_x, context_y, target_x, target_y)
 
