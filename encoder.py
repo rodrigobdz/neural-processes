@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 class Encoder(nn.Module):
 
     # encoder input: x, y

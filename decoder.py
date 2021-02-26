@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 class Decoder(nn.Module):
 
     def __init__(self, in_features_x, out_features, h_size):

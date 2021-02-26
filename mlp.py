@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 class MLP(nn.Module):
 
     def __init__(self, in_features, out_features):
