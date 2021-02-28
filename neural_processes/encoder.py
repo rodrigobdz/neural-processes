@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import torch
+from torch import nn
+from torch import distributions
+
+# Local imports
+from mlp import MLP
+
 class Encoder(nn.Module):
 
     # encoder input: x, y

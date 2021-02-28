@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from torch import nn
+
+# Local imports
+from encoder import Encoder
+from decoder import Decoder
+
 class NeuralProcess(nn.Module):
 
     def __init__(self, in_features, encoder_out, decoder_out, h_size, mc_size):

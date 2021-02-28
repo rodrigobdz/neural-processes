@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import torch
+from torch import nn
+from torch import distributions
+
+# Local imports
+from mlp import MLP
+
 class Decoder(nn.Module):
 
     def __init__(self, in_features_x, out_features, h_size):

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import matplotlib.pyplot as plt
+from torch import distributions
+
 def loss(distr, target_y, prior, posterior, mc_size):
 
     target_y = target_y[:, None, :, :].expand(-1, mc_size, -1, -1)
