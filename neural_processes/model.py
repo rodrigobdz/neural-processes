@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-class NeuralProcess(nn.Module):
+from torch import nn as _nn
+
+# Local imports
+from .encoder import Encoder
+from .decoder import Decoder
+
+
+class NeuralProcess(_nn.Module):
 
     def __init__(self, in_features, encoder_out, decoder_out, h_size, mc_size):
         super(NeuralProcess, self).__init__()
@@ -22,7 +29,7 @@ class NeuralProcess(nn.Module):
         #train time behaviour
         if target_y is not None:
             q_posterior = self._encoder(target_x, target_y)
-            z = q_posterior.rsample([mc_size]) #rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
+            z = q_posterior.rsample([self._mc_size]) #rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
 
             # monte carlo sampling for integral over logp
             # z will be concatenate to every x_i and therefore must match
