@@ -39,7 +39,7 @@ def fit(niter, save_iter, np, opt, train_set, query_test):
 
         if i % save_iter == 0:
           np.eval()
-          with torch.no_grad():
+          with _torch.no_grad():
             # (mu, sigma, _), _ = np(context_x, context_y, target_x)
             # plot_functions(target_x, target_y, context_x, context_y, mu, sigma)
 
