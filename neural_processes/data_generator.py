@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import torch
+import torch as _torch
 # %%
 # Adapted from:
 # https://github.com/deepmind/neural-processes/blob/aca7e38ea64b718fbd7f311ccae5d51d73447d15/attentive_neural_process.ipynb
@@ -80,16 +80,16 @@ class GPCurves:
 
         # [B, y_size, num_total_points, num_total_points, x_size]
         # None indexing [None, :] acts like tensor.unsqueeze(dim)
-        norm = torch.square(diff[:, None, :, :, :] / length[:, :, None, None, :])
+        norm = _torch.square(diff[:, None, :, :, :] / length[:, :, None, None, :])
 
         # [B, data_size, num_total_points, num_total_points]
         norm = norm.sum(-1) # one data point per row
 
         # [B, y_size, num_total_points, num_total_points]
-        kernel = torch.square(sigma)[:, :, None, None] * torch.exp(-0.5 * norm)
+        kernel = _torch.square(sigma)[:, :, None, None] * _torch.exp(-0.5 * norm)
 
         # Add some noise to the diagonal to make the cholesky work
-        kernel.add_(torch.eye(num_total_points).mul(noise**2))
+        kernel.add_(_torch.eye(num_total_points).mul(noise**2))
 
         return kernel
 
@@ -103,30 +103,30 @@ class GPCurves:
 
         """
 
-        num_context = torch.randint(3, self._max_num_context, [])
+        num_context = _torch.randint(3, self._max_num_context, [])
 
         if self._testing:
             num_target = 400
             num_total_points = num_target
-            X = torch.arange(-2, 2, 0.01).unsqueeze(0).expand(self._batch_size, -1)
+            X = _torch.arange(-2, 2, 0.01).unsqueeze(0).expand(self._batch_size, -1)
             # attention! returns view - copy necessary if in place operations are used
             X.unsqueeze_(-1)
 
         else:
-            num_target = torch.randint(0, self._max_num_context - num_context, [])
+            num_target = _torch.randint(0, self._max_num_context - num_context, [])
             num_total_points = num_context + num_target
-            X = torch.Tensor(self._batch_size, num_total_points, self._x_size).uniform_(-2, 2)
+            X = _torch.Tensor(self._batch_size, num_total_points, self._x_size).uniform_(-2, 2)
 
 
         # set Kernel parameters randomly for every batch
         if self._random_params:
-            length = torch.Tensor(self._batch_size, self._y_size, self._x_size).uniform_(0.1, self._length_scale)
-            sigma = torch.Tensor(self._batch_size, self._y_size).uniform_(0.1, self._sigma_scale)
+            length = _torch.Tensor(self._batch_size, self._y_size, self._x_size).uniform_(0.1, self._length_scale)
+            sigma = _torch.Tensor(self._batch_size, self._y_size).uniform_(0.1, self._sigma_scale)
 
         else:
         # use the same Kernel parameters for every batch
-            length = torch.ones(self._batch_size, self._y_size, self._x_size).mul_(self._length_scale)
-            sigma = torch.ones(self._batch_size, self._y_size).mul_(self._sigma_scale)
+            length = _torch.ones(self._batch_size, self._y_size, self._x_size).mul_(self._length_scale)
+            sigma = _torch.ones(self._batch_size, self._y_size).mul_(self._sigma_scale)
 
 
         # [batch_size, y_size, num_total_points, num_total_points]
@@ -136,7 +136,7 @@ class GPCurves:
         cholesky = kernel.double().cholesky().float()
 
         # sampling with no mean assumption: y = mu + sigma*z~N(0,I) ~ c.L * rand_normal([0, 1]) with appropriate shape
-        y = cholesky.matmul(torch.randn(self._batch_size, self._y_size, num_total_points, 1))
+        y = cholesky.matmul(_torch.randn(self._batch_size, self._y_size, num_total_points, 1))
 
         # [batch_size, num_total_points, y_size]
         Y = y.squeeze(3).permute(0, 2, 1)
@@ -147,9 +147,9 @@ class GPCurves:
             target_y = Y
 
             # Select the observations
-            idx = torch.randperm(num_target)
-            context_x = torch.index_select(X, 1, idx[:num_context])
-            context_y = torch.index_select(Y, 1, idx[:num_context])
+            idx = _torch.randperm(num_target)
+            context_x = _torch.index_select(X, 1, idx[:num_context])
+            context_y = _torch.index_select(Y, 1, idx[:num_context])
         else:
             # Select the targets which will consist of the context points as well as
             # some new target points

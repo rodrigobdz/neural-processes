@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import matplotlib.pyplot as plt
-from torch import distributions
+import matplotlib.pyplot as _plt
+import torch as _torch
+from torch import distributions as _distributions
 
 def loss(distr, target_y, prior, posterior, mc_size):
 
@@ -10,11 +11,11 @@ def loss(distr, target_y, prior, posterior, mc_size):
     logp = distr.log_prob(target_y).sum(dim=2, keepdims=True).mean(dim=1).squeeze()
 
     # analytic solution exists since two MvGaussians are used
-    kl = distributions.kl_divergence(posterior, prior)
+    kl = _distributions.kl_divergence(posterior, prior)
 
     # optimiser uses gradient descent but
     # ELBO should be maximized: therefore -loss
-    loss = -torch.mean(logp - kl)
+    loss = -_torch.mean(logp - kl)
 
     return loss
 
@@ -71,10 +72,10 @@ def plot_1d(context_x, context_y, target_x, target_y, pred_y, std):
         predicted std dev of the y values at the target points in target_x.
   """
   # Plot everything
-  plt.plot(target_x[0], pred_y[0], 'b', linewidth=2)
-  plt.plot(target_x[0], target_y[0], 'k:', linewidth=2)
-  plt.plot(context_x[0], context_y[0], 'ko', markersize=10)
-  plt.fill_between(
+  _plt.plot(target_x[0], pred_y[0], 'b', linewidth=2)
+  _plt.plot(target_x[0], target_y[0], 'k:', linewidth=2)
+  _plt.plot(context_x[0], context_y[0], 'ko', markersize=10)
+  _plt.fill_between(
       target_x[0, :, 0],
       pred_y[0, :, 0] - std[0, :, 0],
       pred_y[0, :, 0] + std[0, :, 0],
@@ -83,12 +84,12 @@ def plot_1d(context_x, context_y, target_x, target_y, pred_y, std):
       interpolate=True)
 
   # Make the plot pretty
-  plt.yticks([-2, 0, 2], fontsize=16)
-  plt.xticks([-2, 0, 2], fontsize=16)
-  plt.ylim([-2, 2])
-  plt.grid('off')
-  ax = plt.gca()
-  plt.show()
+  _plt.yticks([-2, 0, 2], fontsize=16)
+  _plt.xticks([-2, 0, 2], fontsize=16)
+  _plt.ylim([-2, 2])
+  _plt.grid('off')
+  ax = _plt.gca()
+  _plt.show()
 
 
 
@@ -114,10 +115,10 @@ def plot_functions(target_x, target_y, context_x, context_y, pred_y, std):
         predicted std dev of the y values at the target points in target_x.
   """
   # Plot everything
-  plt.plot(target_x, pred_y[0].unsqueeze(-1), 'b', linewidth=2)
-  plt.plot(target_x, target_y, 'k:', linewidth=2)
-  plt.plot(context_x, context_y, 'ko', markersize=10)
-  plt.fill_between(
+  _plt.plot(target_x, pred_y[0].unsqueeze(-1), 'b', linewidth=2)
+  _plt.plot(target_x, target_y, 'k:', linewidth=2)
+  _plt.plot(context_x, context_y, 'ko', markersize=10)
+  _plt.fill_between(
       target_x,
       pred_y[0].unsqueeze(-1) - std[0],
       pred_y[0].unsqueeze(-1) + std[0],
@@ -126,12 +127,12 @@ def plot_functions(target_x, target_y, context_x, context_y, pred_y, std):
       interpolate=True)
 
   # Make the plot pretty
-  plt.yticks([-2, 0, 2], fontsize=16)
-  plt.xticks([-2, 0, 2], fontsize=16)
-  plt.ylim([-2, 2])
-  plt.grid('off')
-  ax = plt.gca()
-  plt.show()
+  _plt.yticks([-2, 0, 2], fontsize=16)
+  _plt.xticks([-2, 0, 2], fontsize=16)
+  _plt.ylim([-2, 2])
+  _plt.grid('off')
+  ax = _plt.gca()
+  _plt.show()
 
 def plot_functions2(target_x, target_y, context_x, context_y, pred_y, std):
   """Plots the predicted mean and variance and the context points.
@@ -151,10 +152,10 @@ def plot_functions2(target_x, target_y, context_x, context_y, pred_y, std):
         predicted std dev of the y values at the target points in target_x.
   """
   # Plot everything
-  plt.plot(target_x[0], pred_y[0], 'b', linewidth=2)
-  plt.plot(target_x[0], target_y[0], 'k:', linewidth=2)
-  plt.plot(context_x[0], context_y[0], 'ko', markersize=10)
-  plt.fill_between(
+  _plt.plot(target_x[0], pred_y[0], 'b', linewidth=2)
+  _plt.plot(target_x[0], target_y[0], 'k:', linewidth=2)
+  _plt.plot(context_x[0], context_y[0], 'ko', markersize=10)
+  _plt.fill_between(
       target_x[0, :, 0],
       pred_y[0, :, 0] - std[0, :, 0],
       pred_y[0, :, 0] + std[0, :, 0],
@@ -163,12 +164,12 @@ def plot_functions2(target_x, target_y, context_x, context_y, pred_y, std):
       interpolate=True)
 
   # Make the plot pretty
-  plt.yticks([-2, 0, 2], fontsize=16)
-  plt.xticks([-2, 0, 2], fontsize=16)
-  plt.ylim([-2, 2])
-  plt.grid('off')
-  ax = plt.gca()
-  plt.show()
+  _plt.yticks([-2, 0, 2], fontsize=16)
+  _plt.xticks([-2, 0, 2], fontsize=16)
+  _plt.ylim([-2, 2])
+  _plt.grid('off')
+  ax = _plt.gca()
+  _plt.show()
 
 
 def unwrap(data, list_, batch_size):
