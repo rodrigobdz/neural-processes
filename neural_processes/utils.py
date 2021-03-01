@@ -170,26 +170,3 @@ def plot_functions2(target_x, target_y, context_x, context_y, pred_y, std):
   _plt.grid('off')
   ax = _plt.gca()
   _plt.show()
-
-
-def unwrap(data, list_, batch_size):
-    """unwrappes data which is present in format [batch_size, num_points, data_size]"""
-
-    for i, d in enumerate(data):
-          for j, x in enumerate(d):
-              list_[j].append(x.to(dev)) # torch.reshape(x, (z * y, 1)))
-
-def preprocess(gp, niter, batch_size):
-
-    list_ = [[] for _ in range(niter * batch_size)]
-
-    start = 0
-    stop = 1
-    for i in range(niter):
-        # data.shape = [batch_size, no_of_elements_representing_one_function/curve, dim_of_x=1]
-        data = gp.generate_curves()
-        unwrap(data, list_[start*batch_size : stop*batch_size], batch_size)
-
-        start += 1
-        stop += 1
-    return list_
