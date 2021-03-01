@@ -8,6 +8,7 @@ from torch import distributions as _distributions
 # Local imports
 from .mlp import MLP
 
+
 class Encoder(_nn.Module):
 
     # encoder input: x, y

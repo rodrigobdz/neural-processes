@@ -5,20 +5,6 @@ import matplotlib.pyplot as _plt
 import torch as _torch
 from torch import distributions as _distributions
 
-def loss(distr, target_y, prior, posterior, mc_size):
-
-    target_y = target_y[:, None, :, :].expand(-1, mc_size, -1, -1)
-    logp = distr.log_prob(target_y).sum(dim=2, keepdims=True).mean(dim=1).squeeze()
-
-    # analytic solution exists since two MvGaussians are used
-    kl = _distributions.kl_divergence(posterior, prior)
-
-    # optimiser uses gradient descent but
-    # ELBO should be maximized: therefore -loss
-    loss = -_torch.mean(logp - kl)
-
-    return loss
-
 
 def fit(niter, save_iter, np, opt, train_set, query_test):
 
@@ -51,6 +37,20 @@ def fit(niter, save_iter, np, opt, train_set, query_test):
 
     return mu, sigma
 
+
+def loss(distr, target_y, prior, posterior, mc_size):
+
+    target_y = target_y[:, None, :, :].expand(-1, mc_size, -1, -1)
+    logp = distr.log_prob(target_y).sum(dim=2, keepdims=True).mean(dim=1).squeeze()
+
+    # analytic solution exists since two MvGaussians are used
+    kl = _distributions.kl_divergence(posterior, prior)
+
+    # optimiser uses gradient descent but
+    # ELBO should be maximized: therefore -loss
+    loss = -_torch.mean(logp - kl)
+
+    return loss
 
 
 # taken from colab NP
@@ -133,6 +133,7 @@ def plot_functions(target_x, target_y, context_x, context_y, pred_y, std):
   _plt.grid('off')
   ax = _plt.gca()
   _plt.show()
+
 
 def plot_functions2(target_x, target_y, context_x, context_y, pred_y, std):
   """Plots the predicted mean and variance and the context points.

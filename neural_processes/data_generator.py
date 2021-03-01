@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+Adapted from:
+    https://github.com/deepmind/neural-processes/blob/aca7e38ea64b718fbd7f311ccae5d51d73447d15/attentive_neural_process.ipynb
+
+Copyright 2019 Google LLC
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+https://www.apache.org/licenses/LICENSE-2.0
+"""
+
 import torch as _torch
-# %%
-# Adapted from:
-# https://github.com/deepmind/neural-processes/blob/aca7e38ea64b718fbd7f311ccae5d51d73447d15/attentive_neural_process.ipynb
-# Copyright 2019 Google LLC
-# Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
-# https://www.apache.org/licenses/LICENSE-2.0
+
 
 class GPCurves:
     """Generates curves using a Gaussian Process (GP).
@@ -167,4 +171,3 @@ class GPCurves:
 
 
         return (context_x, context_y, target_x, target_y)
-

@@ -7,6 +7,7 @@ from torch import nn as _nn
 from .encoder import Encoder
 from .decoder import Decoder
 
+
 class NeuralProcess(_nn.Module):
 
     def __init__(self, in_features, encoder_out, decoder_out, h_size, mc_size):

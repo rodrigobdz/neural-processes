@@ -8,6 +8,7 @@ from torch import distributions as _distributions
 # Local imports
 from .mlp import MLP
 
+
 class Decoder(_nn.Module):
 
     def __init__(self, in_features_x, out_features, h_size):

@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+
 """
 Multilayer perceptron
 """
 
 from torch import nn as _nn
+
 
 class MLP(_nn.Module):
 
@@ -27,7 +29,6 @@ class MLP(_nn.Module):
                 ]
                 )
             )
-
 
     def forward(self, x):
 
