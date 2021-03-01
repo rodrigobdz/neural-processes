@@ -6,7 +6,7 @@ from torch import nn
 from torch import distributions
 
 # Local imports
-from mlp import MLP
+from .mlp import MLP
 
 class Encoder(nn.Module):
 

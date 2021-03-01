@@ -4,8 +4,8 @@
 from torch import nn
 
 # Local imports
-from encoder import Encoder
-from decoder import Decoder
+from .encoder import Encoder
+from .decoder import Decoder
 
 class NeuralProcess(nn.Module):
 
