@@ -25,9 +25,9 @@ class MLP(_nn.Module):
         for i, size in enumerate(out_features[:-1]):
             self.linears.extend(_nn.ModuleList(
                 [_nn.ReLU(),
-                _nn.Linear(size, out_features[i+1])
-                ]
-                )
+                 _nn.Linear(size, out_features[i+1])
+                 ]
+            )
             )
 
     def forward(self, x):

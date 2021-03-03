@@ -29,8 +29,7 @@ class Decoder(_nn.Module):
 
         mu, log_sigma = self._mlp(data).split(1, dim=-1)
 
-        sigma = .1 + .9 * _nn.Softplus()(log_sigma) # bound variance to range 0:1
+        sigma = .1 + .9 * _nn.Softplus()(log_sigma)  # bound variance to range 0:1
         # ANP paper: use Softplus instead of Sigmoid, .1 + ... for Cholesky
-
 
         return mu, sigma, _distributions.Normal(mu, sigma)
