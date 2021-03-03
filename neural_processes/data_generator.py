@@ -44,7 +44,7 @@ class GPCurves:
             length_scale: Float; typical scale for kernel distance function.
             sigma_scale: Float; typical scale for variance.
             random_params: If `True`, the kernel parameters (length and sigma)
-            will be sampled uniformly within [0.1, length_scale) and [0.1, sigma_scale).
+            will be sampled uniformly within [0.1, length_scale] and [0.1, sigma_scale].
             dev: Either `cpu` or `gpu`, tensors will be casted to appropriate device
         """
 
