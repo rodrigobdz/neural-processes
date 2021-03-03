@@ -17,6 +17,16 @@
    ./script/bootstrap
    ```
 
+## Contributing
+
+Code is formatted using [`autopep8`](https://pypi.org/project/autopep8/) to adhere to [PEP 8](https://www.python.org/dev/peps/pep-0008/).
+
+- Format python files:
+
+  ```sh
+  ./script/format
+  ```
+
 ## Related Projects
 
 - [deepmind/neural-processes](https://github.com/deepmind/neural-processes) - Source code of Neural Processes [paper](https://arxiv.org/pdf/1807.01622.pdf)

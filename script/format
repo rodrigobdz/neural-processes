@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+#
+# Format code.
+
+set -o errexit
+set -o pipefail
+set -o nounset
+
+# shellcheck disable=SC1091
+source utils.sh
+
+fancy_echo 'Formatting python files using autopep8'
+find . -name '*.py' -not -path '*/neuralprocesses-venv/*' -exec autopep8 --in-place '{}' \;

@@ -53,13 +53,14 @@ class Encoder(_nn.Module):
         # produce representations r_i and aggregate them (mean)
         # to receive a single order-invariant representation r (crucial for run time redction to
         # O(n+m) (context + target))
-        r = self._mlp(data).mean(dim=1) #rows represent r_i
+        r = self._mlp(data).mean(dim=1)  # rows represent r_i
         r = _nn.ReLU()(r)
 
         # use representation r to parameterise a MvNormal using a second MLP
         # (_mu and _log_sigma share params except their last layer)
         mu = self._mu(r)
-        sigma = .1 + .9 * _nn.Sigmoid()(self._log_sigma(r)) # mapping to range .0.:1. (from colab)
+        # mapping to range .0.:1. (from colab)
+        sigma = .1 + .9 * _nn.Sigmoid()(self._log_sigma(r))
         sigma = sigma.diag_embed().tril()
 
         return _distributions.MultivariateNormal(mu, sigma)

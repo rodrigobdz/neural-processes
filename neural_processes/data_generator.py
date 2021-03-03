@@ -23,17 +23,16 @@ class GPCurves:
     """
 
     def __init__(self,
-                batch_size,
-                max_num_context,
-                x_size=1,
-                y_size=1,
-                length_scale=1.0,
-                sigma_scale=1.0,
-                random_params=True,
-                testing=False,
-                dev='cpu'
-                ):
-
+                 batch_size,
+                 max_num_context,
+                 x_size=1,
+                 y_size=1,
+                 length_scale=0.6,
+                 sigma_scale=1.0,
+                 random_params=True,
+                 testing=False,
+                 dev='cpu'
+                 ):
         """Creates a regression dataset of functions sampled from a GP.
 
         Args:
@@ -44,7 +43,7 @@ class GPCurves:
             length_scale: Float; typical scale for kernel distance function.
             sigma_scale: Float; typical scale for variance.
             random_params: If `True`, the kernel parameters (length and sigma)
-            will be sampled uniformly within [0.1, length_scale) and [0.1, sigma_scale).
+            will be sampled uniformly within [0.1, length_scale] and [0.1, sigma_scale].
             dev: Either `cpu` or `gpu`, tensors will be casted to appropriate device
         """
 
@@ -78,19 +77,21 @@ class GPCurves:
         num_total_points = X.size()[1]
 
         # X.size(): [B, num_total_points, x_size]
-        x1 = X.unsqueeze(1)# [B, 1, num_total_points, x_size]
-        x2 = X.unsqueeze(2)# [B, num_total_points, 1, x_size]
-        diff = x1 - x2 # [B, num_total_points, num_total_points, x_size]
+        x1 = X.unsqueeze(1)  # [B, 1, num_total_points, x_size]
+        x2 = X.unsqueeze(2)  # [B, num_total_points, 1, x_size]
+        diff = x1 - x2  # [B, num_total_points, num_total_points, x_size]
 
         # [B, y_size, num_total_points, num_total_points, x_size]
         # None indexing [None, :] acts like tensor.unsqueeze(dim)
-        norm = _torch.square(diff[:, None, :, :, :] / length[:, :, None, None, :])
+        norm = _torch.square(diff[:, None, :, :, :] /
+                             length[:, :, None, None, :])
 
         # [B, data_size, num_total_points, num_total_points]
-        norm = norm.sum(-1) # one data point per row
+        norm = norm.sum(-1)  # one data point per row
 
         # [B, y_size, num_total_points, num_total_points]
-        kernel = _torch.square(sigma)[:, :, None, None] * _torch.exp(-0.5 * norm)
+        kernel = _torch.square(
+            sigma)[:, :, None, None] * _torch.exp(-0.5 * norm)
 
         # Add some noise to the diagonal to make the cholesky work
         kernel.add_(_torch.eye(num_total_points).mul(noise**2))
@@ -112,26 +113,31 @@ class GPCurves:
         if self._testing:
             num_target = 400
             num_total_points = num_target
-            X = _torch.arange(-2, 2, 0.01).unsqueeze(0).expand(self._batch_size, -1)
+            X = _torch.arange(-2, 2,
+                              0.01).unsqueeze(0).expand(self._batch_size, -1)
             # attention! returns view - copy necessary if in place operations are used
             X.unsqueeze_(-1)
 
         else:
-            num_target = _torch.randint(0, self._max_num_context - num_context, [])
+            num_target = _torch.randint(
+                0, self._max_num_context - num_context, [])
             num_total_points = num_context + num_target
-            X = _torch.Tensor(self._batch_size, num_total_points, self._x_size).uniform_(-2, 2)
-
+            X = _torch.Tensor(self._batch_size, num_total_points,
+                              self._x_size).uniform_(-2, 2)
 
         # set Kernel parameters randomly for every batch
         if self._random_params:
-            length = _torch.Tensor(self._batch_size, self._y_size, self._x_size).uniform_(0.1, self._length_scale)
-            sigma = _torch.Tensor(self._batch_size, self._y_size).uniform_(0.1, self._sigma_scale)
+            length = _torch.Tensor(self._batch_size, self._y_size, self._x_size).uniform_(
+                0.1, self._length_scale)
+            sigma = _torch.Tensor(self._batch_size, self._y_size).uniform_(
+                0.1, self._sigma_scale)
 
         else:
-        # use the same Kernel parameters for every batch
-            length = _torch.ones(self._batch_size, self._y_size, self._x_size).mul_(self._length_scale)
-            sigma = _torch.ones(self._batch_size, self._y_size).mul_(self._sigma_scale)
-
+            # use the same Kernel parameters for every batch
+            length = _torch.ones(self._batch_size, self._y_size, self._x_size).mul_(
+                self._length_scale)
+            sigma = _torch.ones(self._batch_size, self._y_size).mul_(
+                self._sigma_scale)
 
         # [batch_size, y_size, num_total_points, num_total_points]
         kernel = self._kernel(X, length, sigma)
@@ -140,7 +146,8 @@ class GPCurves:
         cholesky = kernel.double().cholesky().float()
 
         # sampling with no mean assumption: y = mu + sigma*z~N(0,I) ~ c.L * rand_normal([0, 1]) with appropriate shape
-        y = cholesky.matmul(_torch.randn(self._batch_size, self._y_size, num_total_points, 1))
+        y = cholesky.matmul(_torch.randn(
+            self._batch_size, self._y_size, num_total_points, 1))
 
         # [batch_size, num_total_points, y_size]
         Y = y.squeeze(3).permute(0, 2, 1)
@@ -168,6 +175,5 @@ class GPCurves:
         context_y = context_y.to(self._dev)
         target_x = target_x.to(self._dev)
         target_y = target_y.to(self._dev)
-
 
         return (context_x, context_y, target_x, target_y)
