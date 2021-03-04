@@ -4,6 +4,32 @@
 import matplotlib.pyplot as _plt
 
 
+def map_to_img(xc, yc, xt, yt, dev):
+    """
+    input is of shape as NP input excluding batch_dim, s.t. [num_points, [row_idx, col_idx]]
+    returns image of shape [1, 28, 28]
+    """
+
+    img = torch.zeros(28, 28)
+    img = img.to(dev)
+
+    num_context = xc.shape[0]
+
+    # TODO use numpy/pytorch indexing style
+    for i, idx in enumerate(xt):
+
+        if i < num_context:
+            y = yc[i]
+
+        # for test reasons ignore predictions for known context_y and use true values
+        else:
+            y = yt[i]
+        # y = yt[i]
+        img[idx[0], idx[1]] = y
+
+    return img
+
+
 def rescale(x, y, dev):
     """
     rescale coordinates to range [0, 28*28)
