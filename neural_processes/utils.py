@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import matplotlib.pyplot as _plt
 import torch as _torch
 from torch import distributions as _distributions
+from .plot import plot_1d, plot_2d, plot_functions, plot_functions2
 
 
 def loss(distr, target_y, prior, posterior, mc_size):
@@ -57,120 +57,39 @@ def fit(niter, save_iter, np, opt, train_set, query_test):
     return mu, sigma
 
 
-# taken from colab NP
-def plot_1d(context_x, context_y, target_x, target_y, pred_y, std):
-    """Plots the predicted mean and variance and the context points.
-
-    Args:
-      target_x: An array of shape [B,num_targets,1] that contains the
-          x values of the target points.
-      target_y: An array of shape [B,num_targets,1] that contains the
-          y values of the target points.
-      context_x: An array of shape [B,num_contexts,1] that contains
-          the x values of the context points.
-      context_y: An array of shape [B,num_contexts,1] that contains
-          the y values of the context points.
-      pred_y: An array of shape [B,num_targets,1] that contains the
-          predicted means of the y values at the target points in target_x.
-      std: An array of shape [B,num_targets,1] that contains the
-          predicted std dev of the y values at the target points in target_x.
+def map_to_img(xc, yc, xt, yt, dev):
     """
-    # Plot everything
-    _plt.plot(target_x[0], pred_y[0], 'b', linewidth=2)
-    _plt.plot(target_x[0], target_y[0], 'k:', linewidth=2)
-    _plt.plot(context_x[0], context_y[0], 'ko', markersize=10)
-    _plt.fill_between(
-        target_x[0, :, 0],
-        pred_y[0, :, 0] - std[0, :, 0],
-        pred_y[0, :, 0] + std[0, :, 0],
-        alpha=0.2,
-        facecolor='#65c9f7',
-        interpolate=True)
-
-    # Make the plot pretty
-    _plt.yticks([-2, 0, 2], fontsize=16)
-    _plt.xticks([-2, 0, 2], fontsize=16)
-    _plt.ylim([-2, 2])
-    _plt.grid('off')
-    ax = _plt.gca()
-    _plt.show()
-
-
-def plot_2d(context_x, context_y, target_x, target_y, pred_y, std):
-    return None
-
-
-def plot_functions(target_x, target_y, context_x, context_y, pred_y, std):
-    """Plots the predicted mean and variance and the context points.
-
-    Args:
-      target_x: An array of shape [B,num_targets,1] that contains the
-          x values of the target points.
-      target_y: An array of shape [B,num_targets,1] that contains the
-          y values of the target points.
-      context_x: An array of shape [B,num_contexts,1] that contains
-          the x values of the context points.
-      context_y: An array of shape [B,num_contexts,1] that contains
-          the y values of the context points.
-      pred_y: An array of shape [B,num_targets,1] that contains the
-          predicted means of the y values at the target points in target_x.
-      std: An array of shape [B,num_targets,1] that contains the
-          predicted std dev of the y values at the target points in target_x.
+    input is of shape as NP input excluding batch_dim, s.t. [num_points, [row_idx, col_idx]]
+    returns image of shape [1, 28, 28]
     """
-    # Plot everything
-    _plt.plot(target_x, pred_y[0].unsqueeze(-1), 'b', linewidth=2)
-    _plt.plot(target_x, target_y, 'k:', linewidth=2)
-    _plt.plot(context_x, context_y, 'ko', markersize=10)
-    _plt.fill_between(
-        target_x,
-        pred_y[0].unsqueeze(-1) - std[0],
-        pred_y[0].unsqueeze(-1) + std[0],
-        alpha=0.2,
-        facecolor='#65c9f7',
-        interpolate=True)
 
-    # Make the plot pretty
-    _plt.yticks([-2, 0, 2], fontsize=16)
-    _plt.xticks([-2, 0, 2], fontsize=16)
-    _plt.ylim([-2, 2])
-    _plt.grid('off')
-    ax = _plt.gca()
-    _plt.show()
+    img = torch.zeros(28, 28)
+    img = img.to(dev)
+
+    num_context = xc.shape[0]
+
+    # TODO use numpy/pytorch indexing style
+    for i, idx in enumerate(xt):
+
+        if i < num_context:
+            y = yc[i]
+
+        # for test reasons ignore predictions for known context_y and use true values
+        else:
+            y = yt[i]
+        # y = yt[i]
+        img[idx[0], idx[1]] = y
+
+    return img
 
 
-def plot_functions2(target_x, target_y, context_x, context_y, pred_y, std):
-    """Plots the predicted mean and variance and the context points.
-
-    Args:
-      target_x: An array of shape [B,num_targets,1] that contains the
-          x values of the target points.
-      target_y: An array of shape [B,num_targets,1] that contains the
-          y values of the target points.
-      context_x: An array of shape [B,num_contexts,1] that contains
-          the x values of the context points.
-      context_y: An array of shape [B,num_contexts,1] that contains
-          the y values of the context points.
-      pred_y: An array of shape [B,num_targets,1] that contains the
-          predicted means of the y values at the target points in target_x.
-      std: An array of shape [B,num_targets,1] that contains the
-          predicted std dev of the y values at the target points in target_x.
+def unravel(idx):
     """
-    # Plot everything
-    _plt.plot(target_x[0], pred_y[0], 'b', linewidth=2)
-    _plt.plot(target_x[0], target_y[0], 'k:', linewidth=2)
-    _plt.plot(context_x[0], context_y[0], 'ko', markersize=10)
-    _plt.fill_between(
-        target_x[0, :, 0],
-        pred_y[0, :, 0] - std[0, :, 0],
-        pred_y[0, :, 0] + std[0, :, 0],
-        alpha=0.2,
-        facecolor='#65c9f7',
-        interpolate=True)
+    pytorch will apply function vectorization, s.t. batch processing is possible
+    unravel linear index [0, 28*28) to cartesian coordinates
+    """
 
-    # Make the plot pretty
-    _plt.yticks([-2, 0, 2], fontsize=16)
-    _plt.xticks([-2, 0, 2], fontsize=16)
-    _plt.ylim([-2, 2])
-    _plt.grid('off')
-    ax = _plt.gca()
-    _plt.show()
+    col = idx % 28
+    row = idx // 28
+
+    return row, col
