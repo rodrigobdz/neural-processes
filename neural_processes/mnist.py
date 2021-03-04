@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import torch as _torch
+from .utils import unravel
 
 
 def preprocess_mnist(data_generator, dev, train=True):

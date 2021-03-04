@@ -96,3 +96,15 @@ def map_to_img(xc, yc, xt, yt, dev):
         img[idx[0], idx[1]] = y
 
     return img
+
+
+def unravel(idx):
+    """
+    pytorch will apply function vectorization, s.t. batch processing is possible
+    unravel linear index [0, 28*28) to cartesian coordinates
+    """
+
+  col = idx % 28
+  row = idx // 28
+
+  return row, col
