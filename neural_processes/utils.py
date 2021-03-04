@@ -104,7 +104,7 @@ def unravel(idx):
     unravel linear index [0, 28*28) to cartesian coordinates
     """
 
-  col = idx % 28
-  row = idx // 28
+    col = idx % 28
+    row = idx // 28
 
-  return row, col
+    return row, col
