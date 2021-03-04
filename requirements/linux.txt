@@ -1,2 +1,4 @@
 --find-links https://download.pytorch.org/whl/torch_stable.html
 torch==1.7.1+cpu
+matplotlib==3.3.4
+autopep8==1.5.5

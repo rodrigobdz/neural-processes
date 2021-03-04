@@ -1,7 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-class NeuralProcess(nn.Module):
+from torch import nn as _nn
+
+# Local imports
+from .encoder import Encoder
+from .decoder import Decoder
+
+
+class NeuralProcess(_nn.Module):
 
     def __init__(self, in_features, encoder_out, decoder_out, h_size, mc_size):
         super(NeuralProcess, self).__init__()
@@ -19,29 +26,29 @@ class NeuralProcess(nn.Module):
         # q_prior will alyways be defined
         q_prior = self._encoder(context_x, context_y)
 
-        #train time behaviour
+        # train time behaviour
         if target_y is not None:
             q_posterior = self._encoder(target_x, target_y)
-            z = q_posterior.rsample([mc_size]) #rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
+            # rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
+            z = q_posterior.rsample([self._mc_size])
 
             # monte carlo sampling for integral over logp
             # z will be concatenate to every x_i and therefore must match
             # dimensionality of x_i
             z = z[:, :, None, :].expand(-1, -1, target_x.shape[1], -1)
             z = z.permute(1, 0, 2, 3)
-            target_x = target_x[:, None, :, :].expand(-1, self._mc_size, -1, -1)
+            target_x = target_x[:, None, :,
+                                :].expand(-1, self._mc_size, -1, -1)
 
-
-        #test time behaviour
+        # test time behaviour
         else:
-            z = q_prior.rsample() #rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
+            # rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
+            z = q_prior.rsample()
             z = z[:, None, :].expand(-1, target_x.shape[1], -1)
-
 
         mu, sigma, distr = self._decoder(target_x, z)
 
-        train = target_y is not None # true at train time
+        train = target_y is not None  # true at train time
         q = (q_prior, q_posterior) if train else q_prior
-
 
         return (mu, sigma, distr), q
