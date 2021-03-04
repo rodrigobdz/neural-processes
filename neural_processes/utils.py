@@ -3,6 +3,7 @@
 
 import torch as _torch
 from torch import distributions as _distributions
+from .plot import plot_1d, plot_2d, plot_functions, plot_functions2
 
 
 def loss(distr, target_y, prior, posterior, mc_size):
