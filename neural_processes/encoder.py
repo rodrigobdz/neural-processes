@@ -26,13 +26,18 @@ class Encoder(_nn.Module):
         # self._out_features = out_features
         self._mlp = MLP(in_features+1, out_features)
 
-        # self._expand = (out_features[-1] + h_size) // 2
+        # self._reduce = (out_features[-1] + h_size) // 2
         # shared mapping parameters (for expansion) between mu and sigma layer
-        # self._shared_layer = _nn.ModuleList([_nn.Linear(out_features[-1], self._expand), _nn.ReLU()])
-        # self._mu = _nn.Sequential(*self._shared_layer, _nn.Linear(self._expand, h_size))
-        # self._log_sigma = _nn.Sequential(*self._shared_layer, _nn.Linear(self._expand, h_size))
-        self._mu = _nn.Linear(out_features[-1], h_size)
-        self._log_sigma = _nn.Linear(out_features[-1], h_size)
+        # self._shared_layer = _nn.ModuleList([_nn.Linear(out_features[-1], self._reduce), _nn.ReLU()])
+        # self._mu = _nn.Sequential(*self._shared_layer, _nn.Linear(self._reduce, h_size))
+        # self._log_sigma = _nn.Sequential(*self._shared_layer, _nn.Linear(self._reduce, h_size))
+        # self._mu = _nn.Linear(out_features[-1], h_size)
+        # self._log_sigma = _nn.Linear(out_features[-1], h_size)
+
+        self._map = _nn.Sequential(_nn.Linear(out_features[-1], h_size), _nn.ReLU())
+        self._mu = _nn.Linear(h_size, h_size)
+        self._log_sigma = _nn.Linear(h_size, h_size)
+
 
     def forward(self, x, y):
         """Encodes the inputs into one representation.
@@ -45,22 +50,21 @@ class Encoder(_nn.Module):
         A Multivariate Gaussian (independence assumed) over tensors of shape [B, num_latents]
         """
 
-        # TODO: relevant when creating the model:
-        #   maybe use DataLoader for training
-        # TODO: change design?
+
         data = _torch.cat((x, y), dim=-1)
 
         # produce representations r_i and aggregate them (mean)
         # to receive a single order-invariant representation r (crucial for run time redction to
         # O(n+m) (context + target))
         r = self._mlp(data).mean(dim=1)  # rows represent r_i
-        r = _nn.ReLU()(r)
+        r = self._map(r)
 
         # use representation r to parameterise a MvNormal using a second MLP
         # (_mu and _log_sigma share params except their last layer)
         mu = self._mu(r)
-        # mapping to range .0.:1. (from colab)
-        sigma = .1 + .9 * _nn.Sigmoid()(self._log_sigma(r))
-        sigma = sigma.diag_embed().tril()
 
-        return _distributions.MultivariateNormal(mu, sigma)
+        # mapping to range .0.:1. (from colab)
+        sigma = .1 + .9 * _torch.sigmoid(self._log_sigma(r))
+        sigma = sigma.diag_embed() #lower factor of Cholesky
+
+        return _distributions.MultivariateNormal(mu, scale_tril=sigma)
