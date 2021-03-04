@@ -57,10 +57,11 @@ def fit(niter, save_iter, np, opt, train_set, query_test):
     return mu, sigma
 
 
-# rescale coordinates to range [0, 28*28)
-# rescale y to [0, 1]
-
 def rescale(x, y, dev):
+    """
+    rescale coordinates to range [0, 28*28)
+    rescale y to [0, 1]
+    """
     scale_x = 28 * 28 - 1
 
     new_y = y + .5
@@ -72,11 +73,12 @@ def rescale(x, y, dev):
 
     return new_x, new_y
 
-# input is of shape as NP input excluding batch_dim, s.t. [num_points, [row_idx, col_idx]]
-# returns image of shape [1, 28, 28]
-
 
 def map_to_img(xc, yc, xt, yt, dev):
+    """
+    input is of shape as NP input excluding batch_dim, s.t. [num_points, [row_idx, col_idx]]
+    returns image of shape [1, 28, 28]
+    """
 
     img = torch.zeros(28, 28)
     img = img.to(dev)

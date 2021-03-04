@@ -4,8 +4,8 @@
 import matplotlib.pyplot as _plt
 
 
-# taken from colab NP
 def plot_1d(context_x, context_y, target_x, target_y, pred_y, std):
+    # Taken from deepmind's colab
     """Plots the predicted mean and variance and the context points.
 
     Args:
