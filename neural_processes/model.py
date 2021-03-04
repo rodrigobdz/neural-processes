@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import torch as _torch
 from torch import nn as _nn
+from torch import optim as _optim
+from torch import distributions as _distributions
 
 # Local imports
+
+from .plot import plot_1d as _plot_1d
 from .encoder import Encoder
 from .decoder import Decoder
 
@@ -52,3 +57,54 @@ class NeuralProcess(_nn.Module):
         q = (q_prior, q_posterior) if train else q_prior
 
         return (mu, sigma, distr), q
+
+    def fit(self, niter, save_iter, train_set, query_test, learning_rate=1e-4):
+
+        opt = _optim.Adam(self.parameters(), lr=learning_rate)
+
+        for i in range(niter):
+            self.train()
+            context_x, context_y, target_x, target_y = train_set[i]
+            distr_tuple, q = self(context_x, context_y, target_x, target_y)
+
+            predict_distr = distr_tuple[2]
+            prior = q[0]
+            posterior = q[1]
+
+            training_loss = NeuralProcess.loss(predict_distr, target_y,
+                                               prior, posterior, self._mc_size)
+            training_loss.backward()
+            opt.step()
+            opt.zero_grad()
+
+            if i % save_iter == 0:
+                self.eval()
+                with _torch.no_grad():
+                    # (mu, sigma, _), _ = self(context_x, context_y, target_x)
+                    # plot_functions(target_x, target_y, context_x, context_y, mu, sigma)
+
+                    # No target_y available at test time
+                    context_x, context_y, target_x, target_y = query_test[0]
+                    (mu, sigma, predict_distr), q = self(
+                        context_x, context_y, target_x)
+
+                    print(f'Iteration: {i}, loss: {training_loss}')
+                    _plot_1d(context_x.cpu(), context_y.cpu(), target_x.cpu(),
+                             target_y.cpu(), mu.cpu(), sigma.cpu())
+
+        return mu, sigma
+
+    def loss(distr, target_y, prior, posterior, mc_size):
+
+        target_y = target_y[:, None, :, :].expand(-1, mc_size, -1, -1)
+        logp = distr.log_prob(target_y).sum(
+            dim=2, keepdims=True).mean(dim=1).squeeze()
+
+        # analytic solution exists since two MvGaussians are used
+        kl = _distributions.kl_divergence(posterior, prior)
+
+        # optimiser uses gradient descent but
+        # ELBO should be maximized: therefore -loss
+        loss = -_torch.mean(logp - kl)
+
+        return loss

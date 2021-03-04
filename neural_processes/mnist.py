@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import torch as _torch
-from .utils import unravel, loss
+from .utils import unravel
 from .plot import plot_2d, rescale
 
 
