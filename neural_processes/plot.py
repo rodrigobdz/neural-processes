@@ -98,16 +98,16 @@ def plot_2d(context_x, context_y, target_x, target_y, data_generator=None, dev='
     img = map_to_img(xc, yc, xt, yt, dev)
 
     # plot prediction/completion
-    plt.imshow(img.to('cpu'), cmap='gray')
-    plt.title('prediction')
-    plt.show()
+    _plt.imshow(img.to('cpu'), cmap='gray')
+    _plt.title('prediction')
+    _plt.show()
 
     # plot original
     if data_generator is not None:
         for Y, label in data_generator:
-            plt.imshow(Y[0].squeeze().to('cpu'), cmap='gray')
-            plt.title(f'Original: {label[0]}')
-            plt.show()
+            _plt.imshow(Y[0].squeeze().to('cpu'), cmap='gray')
+            _plt.title(f'Original: {label[0]}')
+            _plt.show()
             break  # print first image
 
 
