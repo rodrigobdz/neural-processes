@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import torch as _torch
-from .utils import unravel
+from .utils import unravel, loss
+from .plot import plot_2d, rescale
 
 
 def preprocess_mnist(data_generator, dev, train=True):

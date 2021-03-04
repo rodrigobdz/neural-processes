@@ -4,6 +4,23 @@
 import matplotlib.pyplot as _plt
 
 
+def rescale(x, y, dev):
+    """
+    rescale coordinates to range [0, 28*28)
+    rescale y to [0, 1]
+    """
+    scale_x = 28 * 28 - 1
+
+    new_y = y + .5
+    new_y = new_y.to(dev)
+
+    new_x = (x + 1).div(2) * scale_x
+    new_x = new_x.round()
+    new_x = new_x.long().to(dev)
+
+    return new_x, new_y
+
+
 def plot_1d(context_x, context_y, target_x, target_y, pred_y, std):
     # Taken from deepmind's colab
     """Plots the predicted mean and variance and the context points.
