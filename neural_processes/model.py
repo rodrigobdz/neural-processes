@@ -35,21 +35,23 @@ class NeuralProcess(_nn.Module):
         if target_y is not None:
             q_posterior = self._encoder(target_x, target_y)
             # rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
-            z = q_posterior.rsample([self._mc_size])
+            z = q_posterior.rsample()
 
             # monte carlo sampling for integral over logp
             # z will be concatenate to every x_i and therefore must match
             # dimensionality of x_i
-            z = z[:, :, None, :].expand(-1, -1, target_x.shape[1], -1)
-            z = z.permute(1, 0, 2, 3)
-            target_x = target_x[:, None, :,
-                                :].expand(-1, self._mc_size, -1, -1)
+            # z = q_posterior.rsample([self._mc_size])
+            # z = z[:, :, None, :].expand(-1, -1, target_x.shape[1], -1)
+            # z = z.permute(1, 0, 2, 3)
+            # target_x = target_x[:, None, :,
+            #                     :].expand(-1, self._mc_size, -1, -1)
 
         # test time behaviour
         else:
             # rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
             z = q_prior.rsample()
-            z = z[:, None, :].expand(-1, target_x.shape[1], -1)
+
+        z = z[:, None, :].expand(-1, target_x.shape[1], -1)
 
         mu, sigma, distr = self._decoder(target_x, z)
 
