@@ -4,6 +4,7 @@
 import torch as _torch
 from .utils import unravel
 from .plot import plot_2d, rescale
+from .model import NeuralProcess
 
 
 def preprocess_mnist(data_generator, dev, train=True):
@@ -134,8 +135,8 @@ def fit_mnist(epochs, niter, save_epoch, np, opt, train_generator, test_generato
             prior = q[0]
             posterior = q[1]
 
-            loss_ = loss(predict_distr, target_y,
-                         prior, posterior, np._mc_size)
+            loss_ = NeuralProcess.loss(predict_distr, target_y,
+                                       prior, posterior, np._mc_size)
             loss_.backward()
             opt.step()
             opt.zero_grad()
@@ -184,8 +185,8 @@ def fit_mnist2(epochs, save_epoch, np, opt, train_generator, test_generator, dev
             prior = q[0]
             posterior = q[1]
 
-            loss_ = loss(predict_distr, target_y,
-                         prior, posterior, np._mc_size)
+            loss_ = NeuralProcess.loss(predict_distr, target_y,
+                                       prior, posterior, np._mc_size)
             loss_.backward()
             opt.step()
             opt.zero_grad()
