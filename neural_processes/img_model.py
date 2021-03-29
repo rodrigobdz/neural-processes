@@ -29,7 +29,7 @@ class ImgNeuralProcess(nn.Module):
             self._np(context_x, context_y, target_y)
 
 
-    def _fit(self, epochs, save_epoch, np, train_generator, test_generator):
+    def _fit(self, epochs, save_epoch, train_generator, test_generator):
 
         running_loss = 0.0
         losses = []
