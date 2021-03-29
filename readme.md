@@ -38,6 +38,7 @@ Code is formatted using [`autopep8`](https://pypi.org/project/autopep8/) to adhe
 
 
 ## Latest mnist loading workaround (29.03.2021)
+```sh
 from torchvision import datasets
 new_mirror = 'https://ossci-datasets.s3.amazonaws.com/mnist'
 datasets.MNIST.resources = [
@@ -48,3 +49,4 @@ train_data = datasets.MNIST(
    "./", train=True, download=True, transform = torchvision.transforms.ToTensor()
 )
 test_data = datasets.MNIST("./", train=True, download=True, transform = torchvision.transforms.ToTensor())
+```
