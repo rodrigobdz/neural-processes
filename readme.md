@@ -35,3 +35,16 @@ Code is formatted using [`autopep8`](https://pypi.org/project/autopep8/) to adhe
 
 - This readme is based on [rodrigobdz/minimal-readme](https://github.com/rodrigobdz/minimal-readme).
 - The [script](./script) structure is based on [rodrigobdz/styleguide-sh](https://github.com/rodrigobdz/styleguide-sh).
+
+
+## Latest mnist loading workaround (29.03.2021)
+from torchvision import datasets
+new_mirror = 'https://ossci-datasets.s3.amazonaws.com/mnist'
+datasets.MNIST.resources = [
+   ('/'.join([new_mirror, url.split('/')[-1]]), md5)
+   for url, md5 in datasets.MNIST.resources
+]
+train_data = datasets.MNIST(
+   "./", train=True, download=True, transform = torchvision.transforms.ToTensor()
+)
+test_data = datasets.MNIST("./", train=True, download=True, transform = torchvision.transforms.ToTensor())
