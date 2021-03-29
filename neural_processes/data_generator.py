@@ -10,7 +10,7 @@ Licensed under the Apache License, Version 2.0 (the "License"); you may not use 
 https://www.apache.org/licenses/LICENSE-2.0
 """
 
-import torch as _torch
+import torch
 
 
 class GPCurves:
@@ -83,18 +83,18 @@ class GPCurves:
 
         # [B, y_size, num_total_points, num_total_points, x_size]
         # None indexing [None, :] acts like tensor.unsqueeze(dim)
-        norm = _torch.square(diff[:, None, :, :, :] /
+        norm = torch.square(diff[:, None, :, :, :] /
                              length[:, :, None, None, :])
 
         # [B, data_size, num_total_points, num_total_points]
         norm = norm.sum(-1)  # one data point per row
 
         # [B, y_size, num_total_points, num_total_points]
-        kernel = _torch.square(
-            sigma)[:, :, None, None] * _torch.exp(-0.5 * norm)
+        kernel = torch.square(
+            sigma)[:, :, None, None] * torch.exp(-0.5 * norm)
 
         # Add some noise to the diagonal to make the cholesky work
-        kernel.add_(_torch.eye(num_total_points).mul(noise**2))
+        kernel.add_(torch.eye(num_total_points).mul(noise**2))
 
         return kernel
 
@@ -108,35 +108,35 @@ class GPCurves:
 
         """
 
-        num_context = _torch.randint(3, self._max_num_context, [])
+        num_context = torch.randint(3, self._max_num_context, [])
 
         if self._testing:
             num_target = 400
             num_total_points = num_target
-            X = _torch.arange(-2, 2,
+            X = torch.arange(-2, 2,
                               0.01).unsqueeze(0).expand(self._batch_size, -1)
             # attention! returns view - copy necessary if in place operations are used
             X.unsqueeze_(-1)
 
         else:
-            num_target = _torch.randint(
+            num_target = torch.randint(
                 0, self._max_num_context - num_context, [])
             num_total_points = num_context + num_target
-            X = _torch.Tensor(self._batch_size, num_total_points,
+            X = torch.Tensor(self._batch_size, num_total_points,
                               self._x_size).uniform_(-2, 2)
 
         # set Kernel parameters randomly for every batch
         if self._random_params:
-            length = _torch.Tensor(self._batch_size, self._y_size, self._x_size).uniform_(
+            length = torch.Tensor(self._batch_size, self._y_size, self._x_size).uniform_(
                 0.1, self._length_scale)
-            sigma = _torch.Tensor(self._batch_size, self._y_size).uniform_(
+            sigma = torch.Tensor(self._batch_size, self._y_size).uniform_(
                 0.1, self._sigma_scale)
 
         else:
             # use the same Kernel parameters for every batch
-            length = _torch.ones(self._batch_size, self._y_size, self._x_size).mul_(
+            length = torch.ones(self._batch_size, self._y_size, self._x_size).mul_(
                 self._length_scale)
-            sigma = _torch.ones(self._batch_size, self._y_size).mul_(
+            sigma = torch.ones(self._batch_size, self._y_size).mul_(
                 self._sigma_scale)
 
         # [batch_size, y_size, num_total_points, num_total_points]
@@ -146,7 +146,7 @@ class GPCurves:
         cholesky = kernel.double().cholesky().float()
 
         # sampling with no mean assumption: y = mu + sigma*z~N(0,I) ~ c.L * rand_normal([0, 1]) with appropriate shape
-        y = cholesky.matmul(_torch.randn(
+        y = cholesky.matmul(torch.randn(
             self._batch_size, self._y_size, num_total_points, 1))
 
         # [batch_size, num_total_points, y_size]
@@ -158,9 +158,9 @@ class GPCurves:
             target_y = Y
 
             # Select the observations
-            idx = _torch.randperm(num_target)
-            context_x = _torch.index_select(X, 1, idx[:num_context])
-            context_y = _torch.index_select(Y, 1, idx[:num_context])
+            idx = torch.randperm(num_target)
+            context_x = torch.index_select(X, 1, idx[:num_context])
+            context_y = torch.index_select(Y, 1, idx[:num_context])
         else:
             # Select the targets which will consist of the context points as well as
             # some new target points

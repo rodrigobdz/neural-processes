@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import torch as _torch
-from torch import nn as _nn
-from torch import optim as _optim
-from torch import distributions as _distributions
+import torch
+from torch import nn
+from torch import optim
+from torch import distributions
 
 # Local imports
 
@@ -13,7 +13,7 @@ from .encoder import Encoder
 from .decoder import Decoder
 
 
-class NeuralProcess(_nn.Module):
+class NeuralProcess(nn.Module):
 
     def __init__(self, in_features, encoder_out, decoder_out, h_size, mc_size):
         super(NeuralProcess, self).__init__()
@@ -35,21 +35,23 @@ class NeuralProcess(_nn.Module):
         if target_y is not None:
             q_posterior = self._encoder(target_x, target_y)
             # rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
-            z = q_posterior.rsample([self._mc_size])
+            z = q_posterior.rsample()
 
             # monte carlo sampling for integral over logp
             # z will be concatenate to every x_i and therefore must match
             # dimensionality of x_i
-            z = z[:, :, None, :].expand(-1, -1, target_x.shape[1], -1)
-            z = z.permute(1, 0, 2, 3)
-            target_x = target_x[:, None, :,
-                                :].expand(-1, self._mc_size, -1, -1)
+            # z = q_posterior.rsample([self._mc_size])
+            # z = z[:, :, None, :].expand(-1, -1, target_x.shape[1], -1)
+            # z = z.permute(1, 0, 2, 3)
+            # target_x = target_x[:, None, :,
+            #                     :].expand(-1, self._mc_size, -1, -1)
 
         # test time behaviour
         else:
             # rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
             z = q_prior.rsample()
-            z = z[:, None, :].expand(-1, target_x.shape[1], -1)
+
+        z = z[:, None, :].expand(-1, target_x.shape[1], -1)
 
         mu, sigma, distr = self._decoder(target_x, z)
 
@@ -60,7 +62,7 @@ class NeuralProcess(_nn.Module):
 
     def fit(self, niter, save_iter, train_set, query_test, learning_rate=1e-4):
 
-        opt = _optim.Adam(self.parameters(), lr=learning_rate)
+        opt = optim.Adam(self.parameters(), lr=learning_rate)
 
         for i in range(niter):
             self.train()
@@ -79,7 +81,7 @@ class NeuralProcess(_nn.Module):
 
             if i % save_iter == 0:
                 self.eval()
-                with _torch.no_grad():
+                with torch.no_grad():
                     # (mu, sigma, _), _ = self(context_x, context_y, target_x)
                     # plot_functions(target_x, target_y, context_x, context_y, mu, sigma)
 
@@ -101,10 +103,10 @@ class NeuralProcess(_nn.Module):
             dim=2, keepdims=True).mean(dim=1).squeeze()
 
         # analytic solution exists since two MvGaussians are used
-        kl = _distributions.kl_divergence(posterior, prior)
+        kl = distributions.kl_divergence(posterior, prior)
 
         # optimiser uses gradient descent but
         # ELBO should be maximized: therefore -loss
-        loss = -_torch.mean(logp - kl)
+        loss = -torch.mean(logp - kl)
 
         return loss
