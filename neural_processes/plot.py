@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import torch
-import matplotlib.pyplot as _plt
+import matplotlib.pyplot as plt
 
 
 def map_to_img(xc, yc, xt, yt, dev):
@@ -67,10 +67,10 @@ def plot_1d(context_x, context_y, target_x, target_y, pred_y, std):
           predicted std dev of the y values at the target points in target_x.
     """
     # Plot everything
-    _plt.plot(target_x[0], pred_y[0], 'b', linewidth=2)
-    _plt.plot(target_x[0], target_y[0], 'k:', linewidth=2)
-    _plt.plot(context_x[0], context_y[0], 'ko', markersize=10)
-    _plt.fill_between(
+    plt.plot(target_x[0], pred_y[0], 'b', linewidth=2)
+    plt.plot(target_x[0], target_y[0], 'k:', linewidth=2)
+    plt.plot(context_x[0], context_y[0], 'ko', markersize=10)
+    plt.fill_between(
         target_x[0, :, 0],
         pred_y[0, :, 0] - std[0, :, 0],
         pred_y[0, :, 0] + std[0, :, 0],
@@ -79,12 +79,12 @@ def plot_1d(context_x, context_y, target_x, target_y, pred_y, std):
         interpolate=True)
 
     # Make the plot pretty
-    _plt.yticks([-2, 0, 2], fontsize=16)
-    _plt.xticks([-2, 0, 2], fontsize=16)
-    _plt.ylim([-2, 2])
-    _plt.grid('off')
-    ax = _plt.gca()
-    _plt.show()
+    plt.yticks([-2, 0, 2], fontsize=16)
+    plt.xticks([-2, 0, 2], fontsize=16)
+    plt.ylim([-2, 2])
+    plt.grid('off')
+    ax = plt.gca()
+    plt.show()
 
 
 def plot_2d(context_x, context_y, target_x, target_y, data_generator=None, dev='cpu'):
@@ -98,16 +98,16 @@ def plot_2d(context_x, context_y, target_x, target_y, data_generator=None, dev='
     img = map_to_img(xc, yc, xt, yt, dev)
 
     # plot prediction/completion
-    _plt.imshow(img.to('cpu'), cmap='gray')
-    _plt.title('prediction')
-    _plt.show()
+    plt.imshow(img.to('cpu'), cmap='gray')
+    plt.title('prediction')
+    plt.show()
 
     # plot original
     if data_generator is not None:
         for Y, label in data_generator:
-            _plt.imshow(Y[0].squeeze().to('cpu'), cmap='gray')
-            _plt.title(f'Original: {label[0]}')
-            _plt.show()
+            plt.imshow(Y[0].squeeze().to('cpu'), cmap='gray')
+            plt.title(f'Original: {label[0]}')
+            plt.show()
             break  # print first image
 
 
@@ -129,10 +129,10 @@ def plot_functions(target_x, target_y, context_x, context_y, pred_y, std):
           predicted std dev of the y values at the target points in target_x.
     """
     # Plot everything
-    _plt.plot(target_x, pred_y[0].unsqueeze(-1), 'b', linewidth=2)
-    _plt.plot(target_x, target_y, 'k:', linewidth=2)
-    _plt.plot(context_x, context_y, 'ko', markersize=10)
-    _plt.fill_between(
+    plt.plot(target_x, pred_y[0].unsqueeze(-1), 'b', linewidth=2)
+    plt.plot(target_x, target_y, 'k:', linewidth=2)
+    plt.plot(context_x, context_y, 'ko', markersize=10)
+    plt.fill_between(
         target_x,
         pred_y[0].unsqueeze(-1) - std[0],
         pred_y[0].unsqueeze(-1) + std[0],
@@ -141,12 +141,12 @@ def plot_functions(target_x, target_y, context_x, context_y, pred_y, std):
         interpolate=True)
 
     # Make the plot pretty
-    _plt.yticks([-2, 0, 2], fontsize=16)
-    _plt.xticks([-2, 0, 2], fontsize=16)
-    _plt.ylim([-2, 2])
-    _plt.grid('off')
-    ax = _plt.gca()
-    _plt.show()
+    plt.yticks([-2, 0, 2], fontsize=16)
+    plt.xticks([-2, 0, 2], fontsize=16)
+    plt.ylim([-2, 2])
+    plt.grid('off')
+    ax = plt.gca()
+    plt.show()
 
 
 def plot_functions2(target_x, target_y, context_x, context_y, pred_y, std):
@@ -167,10 +167,10 @@ def plot_functions2(target_x, target_y, context_x, context_y, pred_y, std):
           predicted std dev of the y values at the target points in target_x.
     """
     # Plot everything
-    _plt.plot(target_x[0], pred_y[0], 'b', linewidth=2)
-    _plt.plot(target_x[0], target_y[0], 'k:', linewidth=2)
-    _plt.plot(context_x[0], context_y[0], 'ko', markersize=10)
-    _plt.fill_between(
+    plt.plot(target_x[0], pred_y[0], 'b', linewidth=2)
+    plt.plot(target_x[0], target_y[0], 'k:', linewidth=2)
+    plt.plot(context_x[0], context_y[0], 'ko', markersize=10)
+    plt.fill_between(
         target_x[0, :, 0],
         pred_y[0, :, 0] - std[0, :, 0],
         pred_y[0, :, 0] + std[0, :, 0],
@@ -179,9 +179,9 @@ def plot_functions2(target_x, target_y, context_x, context_y, pred_y, std):
         interpolate=True)
 
     # Make the plot pretty
-    _plt.yticks([-2, 0, 2], fontsize=16)
-    _plt.xticks([-2, 0, 2], fontsize=16)
-    _plt.ylim([-2, 2])
-    _plt.grid('off')
-    ax = _plt.gca()
-    _plt.show()
+    plt.yticks([-2, 0, 2], fontsize=16)
+    plt.xticks([-2, 0, 2], fontsize=16)
+    plt.ylim([-2, 2])
+    plt.grid('off')
+    ax = plt.gca()
+    plt.show()
