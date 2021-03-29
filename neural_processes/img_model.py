@@ -36,11 +36,10 @@ class ImgNeuralProcess(nn.Module):
         nll = []
         kll = []
 
-        query_test = preprocess_mnist(Y=None, data_generator=test_generator, train=False)
 
         for j in range(epochs):
             for i, (Y, _) in enumerate(train_generator):
-                train_set = preprocess_mnist(Y, data_generator=None, train=True)
+                train_set = preprocess_mnist(Y, train=True)
 
                 context_x, context_y, target_x, target_y = train_set
                 context_x, context_y, target_x, target_y = train_set[i]
@@ -65,14 +64,14 @@ class ImgNeuralProcess(nn.Module):
             if j % save_epoch == 0:
                 # np.eval()
                 with torch.no_grad():
+                    Y, label = next(iter(test_generator))
+                    query_test = preprocess_mnist(Y, train=False)
 
-                    # No target_y available at test time
-                    ind = torch.randint(0, len(query_test), [])
-                    context_x, context_y, target_x, target_y = query_test[ind]
+                    context_x, context_y, target_x, target_y = query_test
                     (mu, sigma, predict_distr), q = self._np(context_x, context_y, target_x)
 
                     print(f'Iteration: {i}, loss: {loss}')
-                    plot_2d(context_x, context_y, target_x, mu, data_generator=test_generator)
+                    plot_2d(context_x, context_y, target_x, mu, target_y, label)
 
         return mu, sigma, (losses, nll, kll)
 
