@@ -108,11 +108,11 @@ class NeuralProcess(nn.Module):
 
         # optimiser uses gradient descent but
         # ELBO should be maximized: therefore -loss
-        # mini batch gradient
 
         nll.append(-logp.mean().detach().item())
         kll.append(kl.mean().detach().item())
 
+        # mini batch gradient
         loss = -torch.mean(logp - kl)
 
         return loss
