@@ -77,7 +77,8 @@ def plot_1d(context_x, context_y, target_x, target_y, pred_y, std):
     plt.xticks([-2, 0, 2], fontsize=16)
     plt.ylim([-2, 2])
     plt.grid('off')
-    # ax = plt.gca()
+
+    # ax = plt.gca() # currently don't know what this does
     plt.show()
 
 
@@ -94,6 +95,7 @@ def plot_2d(context_x, context_y, target_x, prediction, target=None, label=None)
         plt.imshow(target.squeeze(), cmap='gray')
         plt.title(f'Original: {label}')
         plt.show()
+
 
 
 def plot_results(plots, num_img, num_samples, num_context):
@@ -145,5 +147,7 @@ def plot_functions(target_x, target_y, context_x, context_y, pred_y, std):
     plt.xticks([-2, 0, 2], fontsize=16)
     plt.ylim([-2, 2])
     plt.grid('off')
+
     # ax = plt.gca()
+
     plt.show()

@@ -30,7 +30,6 @@ class NeuralProcess(nn.Module):
         # train time behaviour
         if target_y is not None:
             q_posterior = self._encoder(target_x, target_y)
-
             # one sample MC estimate
             # rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
             z = q_posterior.rsample()
@@ -56,7 +55,6 @@ class NeuralProcess(nn.Module):
         losses = []
         nll = []
         kll = []
-
 
         for i in range(niter):
             self.train()
