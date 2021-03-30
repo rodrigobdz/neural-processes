@@ -23,11 +23,7 @@ class ImgNeuralProcess(nn.Module):
             in_features, encoder_out, decoder_out, h_size)
 
     def forward(self, context_x, context_y, target_x, target_y=None):
-        if target_y is not None:
-            self._np(context_x, context_y, target_x, target_y)
-            return
-
-        self._np(context_x, context_y, target_y)
+        return self._np(context_x, context_y, target_x, target_y)
 
     def _fit(self, epochs, save_epoch, train_generator, test_generator, opt):
 
