@@ -63,8 +63,8 @@ class NeuralProcess(nn.Module):
             predict_distr = distr_tuple[2]
             prior, posterior = q
 
-
-            loss = NeuralProcess._loss(predict_distr, target_y, prior, posterior, nll, kll)
+            loss = self._loss(
+                predict_distr, target_y, prior, posterior, nll, kll)
 
             running_loss += loss.item()
 
