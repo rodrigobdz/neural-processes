@@ -4,8 +4,6 @@
 import torch
 import matplotlib.pyplot as plt
 
-from .utils import rescale
-
 
 def map_to_img(xc, yc, xt, yt):
     """
@@ -28,6 +26,22 @@ def map_to_img(xc, yc, xt, yt):
 
     return img
 
+
+def rescale(x, y):
+    """
+    rescale coordinates to range [0, 28*28)
+    rescale y to [0, 1]
+    """
+
+    scale_x = 27
+
+    new_y = y + .5
+    new_x = (x + 1).div(2) * scale_x
+
+    new_x = new_x.round()  # new_x.long() results in wrong positions therefore round
+    new_x = new_x.long()
+
+    return new_x, new_y
 
 
 def gen_img(context_x, context_y, target_x, target_y):
