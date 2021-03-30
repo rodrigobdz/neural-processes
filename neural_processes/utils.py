@@ -54,8 +54,7 @@ def preprocess_mnist(Y, train=True):
     # Y[context_idx.tolist()] # [B, num_context, 1]
     context_y = target_y[:, :num_context, :]
 
-    # dev is a global variable
-    dev = 'cpu' if dev is None else dev
+    dev = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     context_x = context_x.to(dev)
     context_y = context_y.to(dev)
