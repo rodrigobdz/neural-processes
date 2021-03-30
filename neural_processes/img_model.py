@@ -16,11 +16,11 @@ from .utils import preprocess_mnist
 
 class ImgNeuralProcess(nn.Module):
 
-    def __init__(self, in_features, encoder_out, decoder_out, h_size, opt):
+    def __init__(self, in_features, encoder_out, decoder_out, h_size):
         super(ImgNeuralProcess, self).__init__()
 
         self._np = NeuralProcess(
-            in_features, encoder_out, decoder_out, h_size, opt)
+            in_features, encoder_out, decoder_out, h_size)
 
     def forward(self, context_x, context_y, target_x, target_y=None):
 
@@ -29,7 +29,7 @@ class ImgNeuralProcess(nn.Module):
         else:
             self._np(context_x, context_y, target_y)
 
-    def _fit(self, epochs, save_epoch, train_generator, test_generator):
+    def _fit(self, epochs, save_epoch, train_generator, test_generator, opt):
 
         running_loss = 0.0
         losses = []
@@ -52,8 +52,8 @@ class ImgNeuralProcess(nn.Module):
                 running_loss += loss.item()
 
                 loss.backward()
-                self._np._opt.step()
-                self._np._opt.zero_grad()
+                opt.step()
+                opt.zero_grad()
 
                 if i % 1000 == 0:
                     with torch.no_grad():

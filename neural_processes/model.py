@@ -15,12 +15,11 @@ from .decoder import Decoder
 
 class NeuralProcess(nn.Module):
 
-    def __init__(self, in_features, encoder_out, decoder_out, h_size, opt):
+    def __init__(self, in_features, encoder_out, decoder_out, h_size):
         super(NeuralProcess, self).__init__()
 
         self._encoder = Encoder(in_features, encoder_out, h_size)
         self._decoder = Decoder(in_features, decoder_out, h_size)
-        self._opt = opt
 
     def forward(self, context_x, context_y, target_x, target_y=None):
 
@@ -48,7 +47,7 @@ class NeuralProcess(nn.Module):
 
         return (mu, sigma, distr), q
 
-    def _fit(self, niter, save_iter, train_set, query_test):
+    def _fit(self, niter, save_iter, train_set, query_test, opt):
 
         running_loss = 0.0
         losses = []
@@ -69,8 +68,8 @@ class NeuralProcess(nn.Module):
             running_loss += loss.item()
 
             loss.backward()
-            self._opt.step()
-            self._opt.zero_grad()
+            opt.step()
+            opt.zero_grad()
 
             if i % save_iter == 0:
                 self.eval()
