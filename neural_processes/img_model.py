@@ -65,7 +65,7 @@ class ImgNeuralProcess(nn.Module):
                         context_x, context_y, target_x)
 
                     print(f'Iteration: {i}, loss: {loss}')
-                    plot_2d(context_x, context_y,
-                            target_x, mu, target_y, label)
+                    plot_2d(context_x[0], context_y[0],
+                            target_x[0], mu[0], target_y[0], label)
 
         return mu, sigma, (losses, nll, kll)
