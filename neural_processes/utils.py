@@ -61,7 +61,7 @@ def preprocess_mnist(Y, train=True):
     target_x = target_x.to(dev)
     target_y = target_y.to(dev)
 
-    return context_x, context_y, target_x, target_y
+    return (context_x, context_y, target_x, target_y)
 
 
 def unravel(idx):
