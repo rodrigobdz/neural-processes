@@ -48,7 +48,6 @@ class NeuralProcess(nn.Module):
 
         return (mu, sigma, distr), q
 
-
     def _fit(self, niter, save_iter, train_set, query_test):
 
         running_loss = 0.0
@@ -73,7 +72,6 @@ class NeuralProcess(nn.Module):
             self._opt.step()
             self._opt.zero_grad()
 
-
             if i % save_iter == 0:
                 self.eval()
                 losses.append(running_loss/save_iter)
@@ -89,10 +87,9 @@ class NeuralProcess(nn.Module):
 
                     print(f'Iteration: {i}, loss: {loss}')
                     plot_1d(context_x.cpu(), context_y.cpu(), target_x.cpu(),
-                             target_y.cpu(), mu.cpu(), sigma.cpu())
+                            target_y.cpu(), mu.cpu(), sigma.cpu())
 
         return mu, sigma, (losses, nll, kll)
-
 
     def _loss(self, predict_distr, target_y, prior, posterior, nll, kll):
 
@@ -100,9 +97,11 @@ class NeuralProcess(nn.Module):
 
         # analytic solution exists since two MvGaussians are used
         # kl of shape [batch_size]
-        kl = distributions.kl_divergence(posterior, prior).sum(dim=1) # [batch_size]
-        kl = kl[:, None].expand(-1, target_y.shape[1]) # [batch_size, num_points]
-        kl = kl / target_y.shape[1] # [batch_size, num_points]
+        kl = distributions.kl_divergence(
+            posterior, prior).sum(dim=1)  # [batch_size]
+        # [batch_size, num_points]
+        kl = kl[:, None].expand(-1, target_y.shape[1])
+        kl = kl / target_y.shape[1]  # [batch_size, num_points]
 
         # optimiser uses gradient descent but
         # ELBO should be maximized: therefore -loss

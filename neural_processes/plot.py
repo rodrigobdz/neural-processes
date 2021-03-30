@@ -97,7 +97,6 @@ def plot_2d(context_x, context_y, target_x, prediction, target=None, label=None)
         plt.show()
 
 
-
 def plot_results(plots, num_img, num_samples, num_context):
 
     fig, axs = plt.subplots(num_samples, num_img, figsize=(10, 10))
@@ -110,7 +109,6 @@ def plot_results(plots, num_img, num_samples, num_context):
 
     # plt.
     plt.show()
-
 
 
 def plot_functions(target_x, target_y, context_x, context_y, pred_y, std):
