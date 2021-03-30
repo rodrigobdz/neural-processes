@@ -41,7 +41,6 @@ class ImgNeuralProcess(nn.Module):
                 train_set = preprocess_mnist(Y, train=True)
 
                 context_x, context_y, target_x, target_y = train_set
-                context_x, context_y, target_x, target_y = train_set[i]
                 distr_tuple, q = self(context_x, context_y, target_x, target_y)
 
                 predict_distr = distr_tuple[2]
