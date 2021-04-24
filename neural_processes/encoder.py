@@ -30,14 +30,14 @@ class Encoder(nn.Module):
         # self._mu = nn.Sequential(*self._shared_layer, nn.Linear(self._reduce, h_size))
         # self._log_sigma = nn.Sequential(*self._shared_layer, nn.Linear(self._reduce, h_size))
 
-        self._map = nn.Sequential(nn.Linear(out_features[-1], h_size), nn.ReLU())
+        self._map = nn.Sequential(
+            nn.Linear(out_features[-1], h_size), nn.ReLU())
         self._mu = nn.Linear(h_size, h_size)
         self._log_sigma = nn.Linear(h_size, h_size)
 
         # self._map = nn.Sequential(nn.Linear(out_features[-1], self._reduce), nn.ReLU())
         # self._mu = nn.Linear(self._reduce, h_size)
         # self._log_sigma = nn.Linear(self._reduce, h_size)
-
 
     def forward(self, x, y):
         """Encodes the inputs into one representation.
@@ -60,12 +60,10 @@ class Encoder(nn.Module):
         r = self._map(r)
         # r = nn.ReLU()(r)
 
-
         # use representation r to parameterise a MvNormal using a second MLP
         # (_mu and _log_sigma share params except their last layer)
         mu = self._mu(r)
         log_sigma = self._log_sigma(r)
-        sigma = .1 + .9 * torch.sigmoid(log_sigma) # mapping to range .0.:1.
-
+        sigma = .1 + .9 * torch.sigmoid(log_sigma)  # mapping to range .0.:1.
 
         return distributions.Normal(mu, sigma)

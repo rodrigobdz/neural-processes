@@ -84,7 +84,7 @@ class GPCurves:
         # [B, y_size, num_total_points, num_total_points, x_size]
         # None indexing [None, :] acts like tensor.unsqueeze(dim)
         norm = torch.square(diff[:, None, :, :, :] /
-                             length[:, :, None, None, :])
+                            length[:, :, None, None, :])
 
         # [B, data_size, num_total_points, num_total_points]
         norm = norm.sum(-1)  # one data point per row
@@ -114,7 +114,7 @@ class GPCurves:
             num_target = 400
             num_total_points = num_target
             X = torch.arange(-2, 2,
-                              0.01).unsqueeze(0).expand(self._batch_size, -1)
+                             0.01).unsqueeze(0).expand(self._batch_size, -1)
             # attention! returns view - copy necessary if in place operations are used
             X.unsqueeze_(-1)
 
@@ -123,7 +123,7 @@ class GPCurves:
                 0, self._max_num_context - num_context, [])
             num_total_points = num_context + num_target
             X = torch.Tensor(self._batch_size, num_total_points,
-                              self._x_size).uniform_(-2, 2)
+                             self._x_size).uniform_(-2, 2)
 
         # set Kernel parameters randomly for every batch
         if self._random_params:

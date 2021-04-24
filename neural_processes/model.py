@@ -15,7 +15,7 @@ from .decoder import Decoder
 
 class NeuralProcess(nn.Module):
 
-    def __init__(self, in_features, encoder_out, decoder_out, h_size, opt):
+    def __init__(self, in_features, encoder_out, decoder_out, h_size):
         super(NeuralProcess, self).__init__()
 
         self._encoder = Encoder(in_features, encoder_out, h_size)
@@ -30,7 +30,6 @@ class NeuralProcess(nn.Module):
         # train time behaviour
         if target_y is not None:
             q_posterior = self._encoder(target_x, target_y)
-
             # one sample MC estimate
             # rsample() takes care of rep. trick (z = µ + σ * I * ϵ , ϵ ~ N(0,1))
             z = q_posterior.rsample()
@@ -49,14 +48,12 @@ class NeuralProcess(nn.Module):
 
         return (mu, sigma, distr), q
 
-
-    def _fit(self, niter, save_iter, train_set, query_test):
+    def _fit(self, niter, save_iter, train_set, query_test, opt):
 
         running_loss = 0.0
         losses = []
         nll = []
         kll = []
-
 
         for i in range(niter):
             self.train()
@@ -66,15 +63,14 @@ class NeuralProcess(nn.Module):
             predict_distr = distr_tuple[2]
             prior, posterior = q
 
-
-            loss = NeuralProcess._loss(predict_distr, target_y, prior, posterior, nll, kll)
+            loss = self._loss(
+                predict_distr, target_y, prior, posterior, nll, kll)
 
             running_loss += loss.item()
 
             loss.backward()
-            self._opt.step()
-            self._opt.zero_grad()
-
+            opt.step()
+            opt.zero_grad()
 
             if i % save_iter == 0:
                 self.eval()
@@ -91,10 +87,9 @@ class NeuralProcess(nn.Module):
 
                     print(f'Iteration: {i}, loss: {loss}')
                     plot_1d(context_x.cpu(), context_y.cpu(), target_x.cpu(),
-                             target_y.cpu(), mu.cpu(), sigma.cpu())
+                            target_y.cpu(), mu.cpu(), sigma.cpu())
 
         return mu, sigma, (losses, nll, kll)
-
 
     def _loss(self, predict_distr, target_y, prior, posterior, nll, kll):
 
@@ -102,9 +97,11 @@ class NeuralProcess(nn.Module):
 
         # analytic solution exists since two MvGaussians are used
         # kl of shape [batch_size]
-        kl = distributions.kl_divergence(posterior, prior).sum(dim=1) # [batch_size]
-        kl = kl[:, None].expand(-1, target_y.shape[1]) # [batch_size, num_points]
-        kl = kl / target_y.shape[1] # [batch_size, num_points]
+        kl = distributions.kl_divergence(
+            posterior, prior).sum(dim=1)  # [batch_size]
+        # [batch_size, num_points]
+        kl = kl[:, None].expand(-1, target_y.shape[1])
+        kl = kl / target_y.shape[1]  # [batch_size, num_points]
 
         # optimiser uses gradient descent but
         # ELBO should be maximized: therefore -loss

@@ -4,8 +4,6 @@
 import torch
 import matplotlib.pyplot as plt
 
-from .utils import rescale
-
 
 def map_to_img(xc, yc, xt, yt):
     """
@@ -28,6 +26,25 @@ def map_to_img(xc, yc, xt, yt):
 
     return img
 
+
+def rescale(x, y):
+    """
+    rescale coordinates to range [0, 28*28)
+    rescale y to [0, 1]
+    """
+
+    scale_x = 27
+
+    new_y = y + .5
+    new_x = (x + 1).div(2) * scale_x
+
+    new_x = new_x.round()  # new_x.long() results in wrong positions therefore round
+    new_x = new_x.long()
+
+    # map_to_img of shape 28*28
+    img = map_to_img(xc, yc, xt, yt)
+
+    return img
 
 
 def gen_img(context_x, context_y, target_x, target_y):
@@ -77,7 +94,8 @@ def plot_1d(context_x, context_y, target_x, target_y, pred_y, std):
     plt.xticks([-2, 0, 2], fontsize=16)
     plt.ylim([-2, 2])
     plt.grid('off')
-    # ax = plt.gca()
+
+    # ax = plt.gca() # currently don't know what this does
     plt.show()
 
 
@@ -108,7 +126,6 @@ def plot_results(plots, num_img, num_samples, num_context):
 
     # plt.
     plt.show()
-
 
 
 def plot_functions(target_x, target_y, context_x, context_y, pred_y, std):
@@ -145,5 +162,7 @@ def plot_functions(target_x, target_y, context_x, context_y, pred_y, std):
     plt.xticks([-2, 0, 2], fontsize=16)
     plt.ylim([-2, 2])
     plt.grid('off')
+
     # ax = plt.gca()
+
     plt.show()
