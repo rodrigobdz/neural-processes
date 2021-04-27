@@ -56,6 +56,8 @@ class ImgNeuralProcess(nn.Module):
 
             if j % save_epoch == 0:
                 # np.eval()
+                losses.append(running_loss/save_epoch)
+                running_loss = 0.0
                 with torch.no_grad():
                     Y, label = next(iter(test_generator))
                     query_test = preprocess_mnist(Y, train=False)
@@ -65,7 +67,7 @@ class ImgNeuralProcess(nn.Module):
                         context_x, context_y, target_x)
 
                     print(f'Iteration: {i}, loss: {loss}')
-                    plot_2d(context_x[0], context_y[0],
-                            target_x[0], mu[0], target_y[0], label)
+                    plot_2d(context_x[0].cpu(), context_y[0].cpu(),
+                            target_x[0].cpu(), mu[0].cpu(), target_y[0].cpu(), label)
 
         return mu, sigma, (losses, nll, kll)
