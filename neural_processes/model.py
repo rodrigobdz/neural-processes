@@ -20,7 +20,6 @@ class NeuralProcess(nn.Module):
 
         self._encoder = Encoder(in_features, encoder_out, h_size)
         self._decoder = Decoder(in_features, decoder_out, h_size)
-        self._opt = opt
 
     def forward(self, context_x, context_y, target_x, target_y=None):
 
