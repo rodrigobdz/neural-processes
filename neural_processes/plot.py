@@ -3,6 +3,7 @@
 
 import torch
 import matplotlib.pyplot as plt
+from torch._C import Size
 
 
 def map_to_img(xc, yc, xt, yt):
@@ -37,14 +38,10 @@ def rescale(x, y):
 
     new_y = y + .5
     new_x = (x + 1).div(2) * scale_x
+    new_x = new_x.round().long()  # new_x.long() results in wrong positions therefore round
 
-    new_x = new_x.round()  # new_x.long() results in wrong positions therefore round
-    new_x = new_x.long()
 
-    # map_to_img of shape 28*28
-    img = map_to_img(xc, yc, xt, yt)
-
-    return img
+    return new_x, new_y
 
 
 def gen_img(context_x, context_y, target_x, target_y):
@@ -109,7 +106,7 @@ def plot_2d(context_x, context_y, target_x, prediction, target=None, label=None)
     plt.show()
 
     if target is not None and label is not None:
-        plt.imshow(target.squeeze(), cmap='gray')
+        plt.imshow(gen_img(context_x, context_y, target_x, target.squeeze()), cmap='gray')
         plt.title(f'Original: {label}')
         plt.show()
 
