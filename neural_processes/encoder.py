@@ -56,7 +56,7 @@ class Encoder(nn.Module):
         # produce representations r_i and aggregate them (mean)
         # to receive a single order-invariant representation r (crucial for run time redction to
         # O(n+m) (context + target))
-        r = self._mlp(data).mean(dim=1) #rows represent r_i
+        r = self._mlp(data).mean(dim=1)  # rows represent r_i
         r = self._map(r)
         # r = nn.ReLU()(r)
 

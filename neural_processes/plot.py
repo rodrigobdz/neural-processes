@@ -38,8 +38,8 @@ def rescale(x, y):
 
     new_y = y + .5
     new_x = (x + 1).div(2) * scale_x
-    new_x = new_x.round().long()  # new_x.long() results in wrong positions therefore round
-
+    # new_x.long() results in wrong positions therefore round
+    new_x = new_x.round().long()
 
     return new_x, new_y
 
@@ -106,7 +106,8 @@ def plot_2d(context_x, context_y, target_x, prediction, target=None, label=None)
     plt.show()
 
     if target is not None and label is not None:
-        plt.imshow(gen_img(context_x, context_y, target_x, target.squeeze()), cmap='gray')
+        plt.imshow(gen_img(context_x, context_y, target_x,
+                   target.squeeze()), cmap='gray')
         plt.title(f'Original: {label}')
         plt.show()
 
