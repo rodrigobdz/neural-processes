@@ -24,10 +24,11 @@ def preprocess_mnist(Y, train=True):
     Y = Y.squeeze(1) - .5
 
     num_context = torch.randint(3, max_num_context+1, [])
-
-    if train:
-        num_target = torch.randint(0, max_num_context - num_context+1, [])
-    else:
+    num_target = 28*28 - num_context
+    # if train:
+    #     num_target = torch.randint(0, max_num_context - num_context+1, [])
+    # else:
+    if not train:
         # min 100 context points (while adjusting model)
         num_context = torch.randint(100, max_num_context+1, [])
         num_target = 28*28 - num_context  # index and number of points
