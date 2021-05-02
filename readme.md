@@ -4,6 +4,8 @@
 
 **Disclaimer:** Our codebase is **strongly** inspired on [deepmind/neural-processes](https://github.com/deepmind/neural-processes) and we explicitely make use of some of their functions.
 
+Authors: [@l8git](https://github.com/l8git) and [@rodrigobdz](https://github.com/rodrigobdz)
+
 ## Requirements
 
 - OS:
