@@ -2,7 +2,7 @@
 
 > Implementation of Neural Processes [paper](https://arxiv.org/pdf/1807.01622.pdf) for _Projects in Machine Learning and Artificial Intelligence_ course at TU Berlin
 
-**Disclaimer:** Our codebase is **strongly** inspired on [deepmind/neural-processes](https://github.com/deepmind/neural-processes) and we explicitely make use of some of their functions.
+**Disclaimer:** Our codebase is **strongly** inspired on [deepmind/neural-processes](https://github.com/deepmind/neural-processes) and we explicitly make use of some of their functions.
 
 Authors: [@l8git](https://github.com/l8git) and [@rodrigobdz](https://github.com/rodrigobdz)
 
